@@ -1,0 +1,20 @@
+{
+  "name": "pacman-pathfinding-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Pac-Man pathfinding algorithm comparison",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "author": "Rune Røddik Hansen (ruha0001)",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
