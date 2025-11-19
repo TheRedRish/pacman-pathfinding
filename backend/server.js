@@ -1,14 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs').promises;
 require('dotenv').config();
-
-const {
-    bfs,
-    dfs,
-    dijkstra,
-    astar
-} = require('./algorithms');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,174 +12,339 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// Algorithm mapping
-const algorithms = {
-    'BFS': bfs,
-    'DFS': dfs,
-    'Dijkstra': dijkstra,
-    'A*': astar
-};
+// Data storage paths
+const DATA_DIR = path.join(__dirname, 'data');
+const BENCHMARKS_FILE = path.join(DATA_DIR, 'benchmarks.json');
+const MAPS_FILE = path.join(DATA_DIR, 'maps.json');
 
-// Helper function to convert maze format
-function convertMaze(maze) {
-    return maze.map(row =>
-        row.map(cell => cell === 1 ? 'wall' : 'empty')
-    );
+// Initialize data directory
+async function initDataDir() {
+    try {
+        await fs.mkdir(DATA_DIR, { recursive: true });
+
+        // Initialize files if they don't exist
+        try {
+            await fs.access(BENCHMARKS_FILE);
+        } catch {
+            await fs.writeFile(BENCHMARKS_FILE, JSON.stringify([]));
+        }
+
+        try {
+            await fs.access(MAPS_FILE);
+        } catch {
+            await fs.writeFile(MAPS_FILE, JSON.stringify([]));
+        }
+    } catch (error) {
+        console.error('Error initializing data directory:', error);
+    }
 }
 
-// API Routes
+initDataDir();
 
-/**
- * POST /api/pathfind
- * Execute a single pathfinding operation
- */
-app.post('/api/pathfind', (req, res) => {
-    try {
-        const { start, goal, maze, algorithm, ghosts } = req.body;
-
-        // Validate input
-        if (!start || !goal || !maze || !algorithm) {
-            return res.status(400).send({
-                error: 'Missing required fields: start, goal, maze, algorithm'
-            });
-        }
-
-        if (!algorithms[algorithm]) {
-            return res.status(400).send({
-                error: `Unknown algorithm: ${algorithm}. Valid options: BFS, DFS, Dijkstra, A*`
-            });
-        }
-
-        // Convert maze format
-        const gridMap = convertMaze(maze);
-
-        // Create world state
-        const worldState = {
-            grid: gridMap,
-            width: maze[0].length,
-            height: maze.length,
-            ghosts: ghosts || []
-        };
-
-        // Execute algorithm
-        const startTime = performance.now();
-        const result = algorithms[algorithm](start, goal, worldState);
-        const endTime = performance.now();
-
-        // Return result
-        res.send({
-            ...result,
-            algorithm,
-            timeMs: endTime - startTime
-        });
-
-    } catch (error) {
-        console.error('Pathfinding error:', error);
-        res.status(500).sens({
-            error: 'Internal server error during pathfinding',
-            details: error.message
-        });
-    }
-});
-
-/**
- * POST /api/benchmark
- * Run comprehensive benchmark tests
- */
-app.post('/api/benchmark', async (req, res) => {
-    try {
-        const { maze, trials = 10 } = req.body;
-
-        if (!maze) {
-            return res.status(400).send({ error: 'Maze is required' });
-        }
-
-        const gridMap = convertMaze(maze);
-        const worldState = {
-            grid: gridMap,
-            width: maze[0].length,
-            height: maze.length,
-            ghosts: []
-        };
-
-        const results = [];
-        const maxTicks = 500;
-
-        // Test each algorithm
-        for (const [algoName, algoFunc] of Object.entries(algorithms)) {
-            let totalTime = 0;
-            let totalNodes = 0;
-            let totalTicks = 0;
-            let catches = 0;
-
-            // Run multiple trials
-            for (let trial = 0; trial < trials; trial++) {
-                // Starting positions
-                const ghostStart = { x: 1, y: 1 };
-                const pacmanPos = { x: 14, y: 23 };
-
-                let ghostPos = { ...ghostStart };
-                let ticks = 0;
-                let caught = false;
-
-                // Simulate until caught or max ticks
-                while (ticks < maxTicks && !caught) {
-                    const startTime = performance.now();
-                    const plan = algoFunc(ghostPos, pacmanPos, worldState);
-                    const endTime = performance.now();
-
-                    totalTime += (endTime - startTime);
-                    totalNodes += plan.nodesVisited;
-
-                    if (plan.nextMove) {
-                        ghostPos = plan.nextMove;
-
-                        if (ghostPos.x === pacmanPos.x && ghostPos.y === pacmanPos.y) {
-                            caught = true;
-                            catches++;
-                            totalTicks += ticks;
-                        }
-                    }
-
-                    ticks++;
-                }
-
-                if (!caught) {
-                    totalTicks += maxTicks;
-                }
-            }
-
-            results.push({
-                algorithm: algoName,
-                avgTimeMs: totalTime / (trials * maxTicks),
-                avgNodesVisited: totalNodes / (trials * maxTicks),
-                avgTicksToCatch: totalTicks / trials,
-                catchRate: catches / trials,
-                trials
-            });
-        }
-
-        res.send(results);
-
-    } catch (error) {
-        console.error('Benchmark error:', error);
-        res.status(500).send({
-            error: 'Internal server error during benchmark',
-            details: error.message
-        });
-    }
-});
+// ============= API ROUTES =============
 
 /**
  * GET /api/health
  * Health check endpoint
  */
 app.get('/api/health', (req, res) => {
-    res.send({
+    res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
-        algorithms: Object.keys(algorithms)
+        message: 'Pac-Man Pathfinding API is running'
     });
+});
+
+/**
+ * POST /api/benchmarks
+ * Save benchmark results
+ */
+app.post('/api/benchmarks', async (req, res) => {
+    try {
+        const { mapName, results, timestamp } = req.body;
+
+        if (!mapName || !results || !timestamp) {
+            return res.status(400).json({
+                error: 'Missing required fields: mapName, results, timestamp'
+            });
+        }
+
+        // Read existing benchmarks
+        const data = await fs.readFile(BENCHMARKS_FILE, 'utf8');
+        const benchmarks = JSON.parse(data);
+
+        // Add new benchmark
+        const benchmarkEntry = {
+            id: Date.now().toString(),
+            mapName,
+            results,
+            timestamp,
+            userAgent: req.headers['user-agent']
+        };
+
+        benchmarks.push(benchmarkEntry);
+
+        // Save back to file
+        await fs.writeFile(BENCHMARKS_FILE, JSON.stringify(benchmarks, null, 2));
+
+        res.json({
+            success: true,
+            id: benchmarkEntry.id,
+            message: 'Benchmark saved successfully'
+        });
+
+    } catch (error) {
+        console.error('Error saving benchmark:', error);
+        res.status(500).json({
+            error: 'Internal server error',
+            details: error.message
+        });
+    }
+});
+
+/**
+ * GET /api/benchmarks
+ * Get all benchmark results (optionally filtered by map)
+ */
+app.get('/api/benchmarks', async (req, res) => {
+    try {
+        const { mapName, limit = 50 } = req.query;
+
+        const data = await fs.readFile(BENCHMARKS_FILE, 'utf8');
+        let benchmarks = JSON.parse(data);
+
+        // Filter by map if specified
+        if (mapName) {
+            benchmarks = benchmarks.filter(b => b.mapName === mapName);
+        }
+
+        // Limit results
+        benchmarks = benchmarks.slice(-parseInt(limit));
+
+        res.json(benchmarks);
+
+    } catch (error) {
+        console.error('Error retrieving benchmarks:', error);
+        res.status(500).json({
+            error: 'Internal server error',
+            details: error.message
+        });
+    }
+});
+
+/**
+ * GET /api/benchmarks/stats
+ * Get aggregate statistics across all benchmarks
+ */
+app.get('/api/benchmarks/stats', async (req, res) => {
+    try {
+        const data = await fs.readFile(BENCHMARKS_FILE, 'utf8');
+        const benchmarks = JSON.parse(data);
+
+        if (benchmarks.length === 0) {
+            return res.json({
+                totalBenchmarks: 0,
+                algorithms: {},
+                maps: {}
+            });
+        }
+
+        // Aggregate statistics
+        const stats = {
+            totalBenchmarks: benchmarks.length,
+            algorithms: {},
+            maps: {}
+        };
+
+        benchmarks.forEach(benchmark => {
+            // Map statistics
+            if (!stats.maps[benchmark.mapName]) {
+                stats.maps[benchmark.mapName] = {
+                    count: 0,
+                    algorithms: {}
+                };
+            }
+            stats.maps[benchmark.mapName].count++;
+
+            // Algorithm statistics
+            benchmark.results.forEach(result => {
+                const algo = result.algorithm;
+
+                if (!stats.algorithms[algo]) {
+                    stats.algorithms[algo] = {
+                        totalRuns: 0,
+                        avgTime: 0,
+                        avgNodes: 0,
+                        avgTicks: 0,
+                        avgCatchRate: 0
+                    };
+                }
+
+                const algoStats = stats.algorithms[algo];
+                const n = algoStats.totalRuns;
+
+                // Running average calculation
+                algoStats.avgTime = (algoStats.avgTime * n + result.avgTimeMs) / (n + 1);
+                algoStats.avgNodes = (algoStats.avgNodes * n + result.avgNodesVisited) / (n + 1);
+                algoStats.avgTicks = (algoStats.avgTicks * n + result.avgTicksToCatch) / (n + 1);
+                algoStats.avgCatchRate = (algoStats.avgCatchRate * n + result.catchRate) / (n + 1);
+                algoStats.totalRuns++;
+
+                // Per-map algorithm stats
+                if (!stats.maps[benchmark.mapName].algorithms[algo]) {
+                    stats.maps[benchmark.mapName].algorithms[algo] = {
+                        count: 0,
+                        avgTime: 0
+                    };
+                }
+                const mapAlgoStats = stats.maps[benchmark.mapName].algorithms[algo];
+                const m = mapAlgoStats.count;
+                mapAlgoStats.avgTime = (mapAlgoStats.avgTime * m + result.avgTimeMs) / (m + 1);
+                mapAlgoStats.count++;
+            });
+        });
+
+        res.json(stats);
+
+    } catch (error) {
+        console.error('Error calculating stats:', error);
+        res.status(500).json({
+            error: 'Internal server error',
+            details: error.message
+        });
+    }
+});
+
+/**
+ * DELETE /api/benchmarks/:id
+ * Delete a specific benchmark
+ */
+app.delete('/api/benchmarks/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const data = await fs.readFile(BENCHMARKS_FILE, 'utf8');
+        let benchmarks = JSON.parse(data);
+
+        const initialLength = benchmarks.length;
+        benchmarks = benchmarks.filter(b => b.id !== id);
+
+        if (benchmarks.length === initialLength) {
+            return res.status(404).json({ error: 'Benchmark not found' });
+        }
+
+        await fs.writeFile(BENCHMARKS_FILE, JSON.stringify(benchmarks, null, 2));
+
+        res.json({
+            success: true,
+            message: 'Benchmark deleted successfully'
+        });
+
+    } catch (error) {
+        console.error('Error deleting benchmark:', error);
+        res.status(500).json({
+            error: 'Internal server error',
+            details: error.message
+        });
+    }
+});
+
+/**
+ * POST /api/maps
+ * Save a custom map
+ */
+app.post('/api/maps', async (req, res) => {
+    try {
+        const { name, width, height, data, pacman, ghosts } = req.body;
+
+        if (!name || !width || !height || !data || !pacman || !ghosts) {
+            return res.status(400).json({
+                error: 'Missing required fields: name, width, height, data, pacman, ghosts'
+            });
+        }
+
+        const mapsData = await fs.readFile(MAPS_FILE, 'utf8');
+        const maps = JSON.parse(mapsData);
+
+        const mapEntry = {
+            id: Date.now().toString(),
+            name,
+            width,
+            height,
+            data,
+            pacman,
+            ghosts,
+            createdAt: new Date().toISOString()
+        };
+
+        maps.push(mapEntry);
+        await fs.writeFile(MAPS_FILE, JSON.stringify(maps, null, 2));
+
+        res.json({
+            success: true,
+            id: mapEntry.id,
+            message: 'Map saved successfully'
+        });
+
+    } catch (error) {
+        console.error('Error saving map:', error);
+        res.status(500).json({
+            error: 'Internal server error',
+            details: error.message
+        });
+    }
+});
+
+/**
+ * GET /api/maps
+ * Get all saved custom maps
+ */
+app.get('/api/maps', async (req, res) => {
+    try {
+        const data = await fs.readFile(MAPS_FILE, 'utf8');
+        const maps = JSON.parse(data);
+
+        res.json(maps);
+
+    } catch (error) {
+        console.error('Error retrieving maps:', error);
+        res.status(500).json({
+            error: 'Internal server error',
+            details: error.message
+        });
+    }
+});
+
+/**
+ * GET /api/export/benchmarks
+ * Export all benchmarks as CSV
+ */
+app.get('/api/export/benchmarks', async (req, res) => {
+    try {
+        const data = await fs.readFile(BENCHMARKS_FILE, 'utf8');
+        const benchmarks = JSON.parse(data);
+
+        // Generate CSV
+        let csv = 'Timestamp,Map,Algorithm,Avg Time (ms),Avg Nodes,Avg Ticks,Catch Rate\n';
+
+        benchmarks.forEach(benchmark => {
+            benchmark.results.forEach(result => {
+                csv += `${benchmark.timestamp},${benchmark.mapName},${result.algorithm},`;
+                csv += `${result.avgTimeMs},${result.avgNodesVisited},${result.avgTicksToCatch},${result.catchRate}\n`;
+            });
+        });
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=benchmarks.csv');
+        res.send(csv);
+
+    } catch (error) {
+        console.error('Error exporting benchmarks:', error);
+        res.status(500).json({
+            error: 'Internal server error',
+            details: error.message
+        });
+    }
 });
 
 /**
@@ -199,10 +358,15 @@ app.get('/', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).send({
+    res.status(500).json({
         error: 'Something went wrong!',
         details: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
+});
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).json({ error: 'Route not found' });
 });
 
 // Start server
@@ -216,7 +380,13 @@ app.listen(PORT, () => {
 ║  Frontend: http://localhost:${PORT}                          ║
 ║  API Health: http://localhost:${PORT}/api/health             ║
 ║                                                           ║
-║  Algorithms: BFS, DFS, Dijkstra, A*                       ║
+║   Backend Services:                                       ║
+║  - Benchmark storage and analytics                        ║
+║  - Custom map management                                  ║
+║  - Historical data & statistics                           ║
+║  - CSV export functionality                               ║
+║                                                           ║
+║   Pathfinding runs in browser (frontend)                  ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
   `);

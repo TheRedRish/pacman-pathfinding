@@ -1,0 +1,283 @@
+import { MAPS } from "./maps.js";
+import { runBenchmark, saveBenchmarkResults } from "./benchmark.js";
+
+export class UIController {
+    constructor(gameEngine) {
+        this.gameEngine = gameEngine;
+
+        this.mapSelector = document.getElementById("mapSelector");
+        this.ghostControlsContainer = document.getElementById("ghostControls");
+        this.statsDiv = document.getElementById("stats");
+
+        this.btnPlay = document.getElementById("btnPlay");
+        this.btnStep = document.getElementById("btnStep");
+        this.btnReset = document.getElementById("btnReset");
+        this.btnBenchmark = document.getElementById("btnBenchmark");
+        this.btnSaveBenchmark = document.getElementById("btnSaveBenchmark");
+
+        this.speedSlider = document.getElementById("speedSlider");
+        this.speedValue = document.getElementById("speedValue");
+
+        this.benchmarkResultsDiv = document.getElementById("benchmarkResults");
+        this.benchmarkContent = document.getElementById("benchmarkContent");
+
+        this.lastBenchmarkResults = null;
+
+        this.init();
+    }
+
+    init() {
+        this.buildMapButtons();
+        this.buildGhostControls();
+        this.updateStatsPlaceholder();
+        this.bindEvents();
+        this.updatePlayButton(false);
+    }
+
+    bindEvents() {
+        this.btnPlay.addEventListener("click", () => {
+            this.gameEngine.togglePlay();
+            this.updatePlayButton(this.gameEngine.isPlaying());
+        });
+
+        this.btnStep.addEventListener("click", () => {
+            this.gameEngine.stepOnce();
+        });
+
+        this.btnReset.addEventListener("click", () => {
+            this.gameEngine.reset();
+            this.buildGhostControls();
+            this.updateStatsPlaceholder();
+            this.updatePlayButton(false);
+        });
+
+        this.speedSlider.addEventListener("input", (e) => {
+            const value = parseInt(e.target.value, 10);
+            this.speedValue.textContent = value;
+            this.gameEngine.setTickSpeed(value);
+        });
+
+        this.btnBenchmark.addEventListener("click", () => {
+            this.handleRunBenchmark();
+        });
+
+        this.btnSaveBenchmark.addEventListener("click", () => {
+            this.handleSaveBenchmark();
+        });
+    }
+
+    buildMapButtons() {
+        this.mapSelector.innerHTML = "";
+
+        Object.entries(MAPS).forEach(([key, map]) => {
+            const btn = document.createElement("button");
+            btn.className = "map-button";
+            btn.textContent = map.name;
+            btn.dataset.mapName = key;
+
+            if (key === this.gameEngine.getCurrentMapName()) {
+                btn.classList.add("active");
+            }
+
+            btn.addEventListener("click", () => {
+                this.gameEngine.loadMap(key);
+                this.buildGhostControls();
+                this.updateStatsPlaceholder();
+                this.updatePlayButton(false);
+                this.setActiveMapButton(key);
+            });
+
+            this.mapSelector.appendChild(btn);
+        });
+    }
+
+    setActiveMapButton(mapName) {
+        const buttons = this.mapSelector.querySelectorAll(".map-button");
+        buttons.forEach((btn) => {
+            if (btn.dataset.mapName === mapName) {
+                btn.classList.add("active");
+            } else {
+                btn.classList.remove("active");
+            }
+        });
+    }
+
+    buildGhostControls() {
+        this.ghostControlsContainer.innerHTML = "";
+        const ghosts = this.gameEngine.getGhosts();
+
+        ghosts.forEach((ghost) => {
+            const div = document.createElement("div");
+            div.className = "ghost-control";
+
+            const header = document.createElement("div");
+            header.className = "ghost-header";
+
+            const colorDot = document.createElement("div");
+            colorDot.className = "ghost-color";
+            colorDot.style.background = ghost.color;
+
+            const label = document.createElement("strong");
+            label.textContent = ghost.name;
+
+            header.appendChild(colorDot);
+            header.appendChild(label);
+
+            const select = document.createElement("select");
+            select.id = `ghost${ghost.id}Algo`;
+
+            const options = ["BFS", "DFS", "Dijkstra", "A*"];
+            options.forEach((algo) => {
+                const opt = document.createElement("option");
+                opt.value = algo;
+                opt.textContent = algo;
+                if (ghost.algorithm === algo) opt.selected = true;
+                select.appendChild(opt);
+            });
+
+            select.addEventListener("change", (e) => {
+                this.gameEngine.changeGhostAlgorithm(ghost.id, e.target.value);
+            });
+
+            const btn = document.createElement("button");
+            btn.textContent = "Show Path";
+            btn.style.width = "100%";
+            btn.style.padding = "5px";
+            btn.style.background = "#444";
+            btn.style.color = "#fff";
+            btn.style.border = "1px solid #666";
+            btn.style.borderRadius = "3px";
+            btn.style.cursor = "pointer";
+
+            btn.addEventListener("click", () => {
+                this.gameEngine.setVisualizingGhost(ghost.id);
+            });
+
+            div.appendChild(header);
+            div.appendChild(select);
+            div.appendChild(btn);
+
+            this.ghostControlsContainer.appendChild(div);
+        });
+    }
+
+    updateStatsPlaceholder() {
+        this.statsDiv.innerHTML = `
+            <div class="stat-item">
+                <span class="stat-label">Algorithm:</span>
+                <span class="stat-value">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Nodes Visited:</span>
+                <span class="stat-value">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Time:</span>
+                <span class="stat-value">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Path Length:</span>
+                <span class="stat-value">-</span>
+            </div>
+        `;
+    }
+
+    updateStats(ghost, plan) {
+        this.statsDiv.innerHTML = `
+            <div class="stat-item">
+                <span class="stat-label">Algorithm:</span>
+                <span class="stat-value">${ghost.algorithm}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Nodes Visited:</span>
+                <span class="stat-value">${plan.nodesVisited}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Time:</span>
+                <span class="stat-value">${plan.timeMs.toFixed(3)}ms</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Path Length:</span>
+                <span class="stat-value">${plan.path ? plan.path.length : 0}</span>
+            </div>
+        `;
+    }
+
+    updatePlayButton(isPlaying) {
+        if (isPlaying) {
+            this.btnPlay.textContent = "⏸ Pause";
+            this.btnPlay.classList.remove("btn-play");
+            this.btnPlay.classList.add("btn-pause");
+        } else {
+            this.btnPlay.textContent = "▶ Play";
+            this.btnPlay.classList.remove("btn-pause");
+            this.btnPlay.classList.add("btn-play");
+        }
+    }
+
+    handleGhostCaught(ghost) {
+        this.updatePlayButton(false);
+        alert(`${ghost.name} caught Pac-Man using ${ghost.algorithm}!`);
+    }
+
+    async handleRunBenchmark() {
+        const mapName = this.gameEngine.getCurrentMapName();
+        this.benchmarkResultsDiv.style.display = "block";
+        this.benchmarkContent.innerHTML = `<div class="loading">Running benchmark... This may take a moment.</div>`;
+        this.btnBenchmark.disabled = true;
+        this.btnSaveBenchmark.disabled = true;
+
+        try {
+            const results = await runBenchmark(mapName, { trials: 10, maxTicks: 500 });
+            this.lastBenchmarkResults = results;
+            this.displayBenchmarkResults(results);
+            this.btnSaveBenchmark.disabled = false;
+        } catch (err) {
+            console.error(err);
+            this.benchmarkContent.innerHTML = `<div class="loading">Benchmark failed.</div>`;
+        } finally {
+            this.btnBenchmark.disabled = false;
+        }
+    }
+
+    displayBenchmarkResults(results) {
+        let html = '<table class="benchmark-table"><thead><tr>';
+        html += "<th>Algorithm</th>";
+        html += "<th>Avg Time (ms)</th>";
+        html += "<th>Avg Nodes</th>";
+        html += "<th>Avg Ticks</th>";
+        html += "<th>Success Rate</th>";
+        html += "</tr></thead><tbody>";
+
+        results.forEach((result) => {
+            html += "<tr>";
+            html += `<td><strong>${result.algorithm}</strong></td>`;
+            html += `<td>${result.avgTimeMs.toFixed(4)}</td>`;
+            html += `<td>${result.avgNodesVisited.toFixed(1)}</td>`;
+            html += `<td>${result.avgTicksToCatch.toFixed(1)}</td>`;
+            html += `<td>${(result.catchRate * 100).toFixed(0)}%</td>`;
+            html += "</tr>";
+        });
+
+        html += "</tbody></table>";
+        this.benchmarkContent.innerHTML = html;
+    }
+
+    async handleSaveBenchmark() {
+        if (!this.lastBenchmarkResults) {
+            alert("No benchmark results to save!");
+            return;
+        }
+
+        try {
+            await saveBenchmarkResults(
+                this.gameEngine.getCurrentMapName(),
+                this.lastBenchmarkResults
+            );
+            alert("Benchmark results saved successfully!");
+        } catch (err) {
+            console.error(err);
+            alert("Error: Failed to save benchmark results.");
+        }
+    }
+}
