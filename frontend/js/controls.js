@@ -27,6 +27,8 @@ export class UIController {
 
         this.lastBenchmarkResults = null;
 
+        this.ghostPathButtons = new Map();
+
         this.init();
     }
 
@@ -109,6 +111,7 @@ export class UIController {
 
     buildGhostControls() {
         this.ghostControlsContainer.innerHTML = "";
+        this.ghostPathButtons.clear();
         const ghosts = this.gameEngine.getGhosts();
 
         ghosts.forEach((ghost) => {
@@ -146,16 +149,12 @@ export class UIController {
 
             const btn = document.createElement("button");
             btn.textContent = "Show Path";
-            btn.style.width = "100%";
-            btn.style.padding = "5px";
-            btn.style.background = "#444";
-            btn.style.color = "#fff";
-            btn.style.border = "1px solid #666";
-            btn.style.borderRadius = "3px";
-            btn.style.cursor = "pointer";
+            btn.className = "ghost-path-btn";
+            btn.dataset.ghostId = ghost.id;
 
             btn.addEventListener("click", () => {
                 this.gameEngine.setVisualizingGhost(ghost.id);
+                this.updateGhostPathButtons(this.gameEngine.getVisualizingGhostId());
             });
 
             div.appendChild(header);
@@ -163,7 +162,11 @@ export class UIController {
             div.appendChild(btn);
 
             this.ghostControlsContainer.appendChild(div);
+
+            this.ghostPathButtons.set(ghost.id, btn);
         });
+
+        this.updateGhostPathButtons(this.gameEngine.getVisualizingGhostId());
     }
 
     updateStatsPlaceholder() {
@@ -218,6 +221,15 @@ export class UIController {
             this.btnPlay.classList.remove("btn-pause");
             this.btnPlay.classList.add("btn-play");
         }
+    }
+
+    updateGhostPathButtons(activeGhostId) {
+        this.ghostPathButtons.forEach((btn, id) => {
+            const isActive = activeGhostId === id;
+            btn.classList.toggle("active", isActive);
+            btn.setAttribute("aria-pressed", isActive);
+            btn.textContent = isActive ? "Hide Path" : "Show Path";
+        });
     }
 
     handleGhostCaught(ghost) {

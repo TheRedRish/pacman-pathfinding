@@ -58,6 +58,10 @@ export class GameEngine {
         return this.ghosts.map((g) => ({ ...g }));
     }
 
+    getVisualizingGhostId() {
+        return this.visualizingGhostId;
+    }
+
     getState() {
         return {
             maze: this.maze,
@@ -127,6 +131,18 @@ export class GameEngine {
             this.lastPlan = null;
         } else {
             this.visualizingGhostId = ghostId;
+            const ghost = this.ghosts.find((g) => g.id === ghostId);
+            if (ghost) {
+                const plan = runAlgorithm(
+                    ghost.algorithm,
+                    { x: ghost.x, y: ghost.y },
+                    this.pacman,
+                    this.maze,
+                    this.ghosts
+                );
+                this.lastPlan = plan;
+                this.onPlanComputed(ghost, plan);
+            }
         }
         this.render();
     }
