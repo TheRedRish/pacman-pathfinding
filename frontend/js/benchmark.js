@@ -1,7 +1,6 @@
 import { MAPS } from "./maps.js";
 import { ALGORITHM_NAMES, runAlgorithm } from "./algorithms.js";
-
-const API_URL = "http://localhost:3000";
+import { API_URL } from "./api.js";
 
 export async function runBenchmark(mapName, { trials = 10, maxTicks = 500 } = {}) {
     const map = MAPS[mapName];

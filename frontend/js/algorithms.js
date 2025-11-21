@@ -96,7 +96,6 @@ function dfs(start, goal, maze, ghosts) {
 
     while (stack.length > 0) {
         const { pos, path } = stack.pop();
-        const key = posKey(pos);
 
         if (pos.x === goal.x && pos.y === goal.y) {
             return {

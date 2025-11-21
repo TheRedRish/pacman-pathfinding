@@ -1,5 +1,6 @@
-import { MAPS } from "./maps.js";
+import { MAPS, registerCustomMaps } from "./maps.js";
 import { runBenchmark, saveBenchmarkResults } from "./benchmark.js";
+import { fetchBackendHealth, fetchBenchmarkStats, fetchSavedMaps } from "./api.js";
 
 export class UIController {
     constructor(gameEngine) {
@@ -21,6 +22,9 @@ export class UIController {
         this.benchmarkResultsDiv = document.getElementById("benchmarkResults");
         this.benchmarkContent = document.getElementById("benchmarkContent");
 
+        this.backendStatusDiv = document.getElementById("backendStatus");
+        this.backendConnected = false;
+
         this.lastBenchmarkResults = null;
 
         this.init();
@@ -32,6 +36,7 @@ export class UIController {
         this.updateStatsPlaceholder();
         this.bindEvents();
         this.updatePlayButton(false);
+        this.loadBackendData();
     }
 
     bindEvents() {
@@ -238,6 +243,60 @@ export class UIController {
         } finally {
             this.btnBenchmark.disabled = false;
         }
+    }
+
+    async loadBackendData() {
+        if (!this.backendStatusDiv) return;
+
+        this.backendStatusDiv.innerHTML = '<div class="loading">Connecting to backend...</div>';
+
+        try {
+            const [health, stats, savedMaps] = await Promise.all([
+                fetchBackendHealth(),
+                fetchBenchmarkStats(),
+                fetchSavedMaps(),
+            ]);
+
+            if (Array.isArray(savedMaps) && savedMaps.length > 0) {
+                registerCustomMaps(savedMaps);
+                this.buildMapButtons();
+            }
+
+            this.backendConnected = true;
+            this.renderBackendStatus({ health, stats, savedMaps });
+        } catch (error) {
+            console.error(error);
+            this.backendStatusDiv.innerHTML = `
+                <div class="stat-item">
+                    <span class="stat-label">Status:</span>
+                    <span class="stat-value">Offline</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Details:</span>
+                    <span class="stat-value">${error.message}</span>
+                </div>
+            `;
+        }
+    }
+
+    renderBackendStatus({ health, stats, savedMaps }) {
+        const totalBenchmarks = stats?.totalBenchmarks || 0;
+        const totalCustomMaps = Array.isArray(savedMaps) ? savedMaps.length : 0;
+
+        this.backendStatusDiv.innerHTML = `
+            <div class="stat-item">
+                <span class="stat-label">Status:</span>
+                <span class="stat-value">${health?.status ?? "Unknown"}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Benchmarks saved:</span>
+                <span class="stat-value">${totalBenchmarks}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Custom maps:</span>
+                <span class="stat-value">${totalCustomMaps}</span>
+            </div>
+        `;
     }
 
     displayBenchmarkResults(results) {

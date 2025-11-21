@@ -1,95 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pac-Man Pathfinding Comparison</title>
-    <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
     <div class="container">
-        <header>
-            <h1>PAC-MAN PATHFINDING</h1>
-            <p class="subtitle">Algorithm Comparison: BFS • DFS • Dijkstra • A*</p>
-        </header>
+      <header>
+        <h1>PAC-MAN PATHFINDING</h1>
+        <p class="subtitle">Algorithm Comparison: BFS • DFS • Dijkstra • A*</p>
+      </header>
 
-        <div class="main-grid">
-            <div class="canvas-container">
-                <canvas id="gameCanvas"></canvas>
-                
-                <div class="button-group" style="margin-top: 20px;">
-                    <button id="btnPlay" class="btn-play">▶ Play</button>
-                    <button id="btnStep" class="btn-step">⏭ Step</button>
-                    <button id="btnReset" class="btn-reset">🔄 Reset</button>
-                    <button id="btnBenchmark" class="btn-benchmark">📊 Benchmark</button>
-                </div>
+      <div class="main-grid">
+        <div class="canvas-container">
+          <canvas id="gameCanvas"></canvas>
 
-                <div class="slider-control">
-                    <label>Speed: <span id="speedValue">200</span>ms</label>
-                    <input type="range" id="speedSlider" min="50" max="1000" value="200" step="50">
-                </div>
+          <div class="button-group" style="margin-top: 20px">
+            <button id="btnPlay" class="btn-play">▶ Play</button>
+            <button id="btnStep" class="btn-step">⏭ Step</button>
+            <button id="btnReset" class="btn-reset">🔄 Reset</button>
+            <button id="btnBenchmark" class="btn-benchmark">
+              📊 Benchmark
+            </button>
+          </div>
+
+          <div class="slider-control">
+            <label>Speed: <span id="speedValue">200</span>ms</label>
+            <input
+              type="range"
+              id="speedSlider"
+              min="50"
+              max="1000"
+              value="200"
+              step="50"
+            />
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="control-section">
+            <h3>🗺️ Maps</h3>
+            <div class="map-selector" id="mapSelector"></div>
+          </div>
+
+          <div class="control-section">
+            <h3>👻 Ghosts</h3>
+            <div id="ghostControls"></div>
+          </div>
+
+          <div class="control-section">
+            <h3>📊 Statistics</h3>
+            <div class="stats-box" id="stats">
+              <!-- Filled dynamically -->
             </div>
-
-            <div class="controls">
-                <div class="control-section">
-                    <h3>🗺️ Maps</h3>
-                    <div class="map-selector" id="mapSelector"></div>
-                </div>
-
-                <div class="control-section">
-                    <h3>👻 Ghosts</h3>
-                    <div id="ghostControls"></div>
-                </div>
-
-                <div class="control-section">
-                    <h3>📊 Statistics</h3>
-                    <div class="stats-box" id="stats">
-                        <!-- Filled dynamically -->
-                    </div>
-                </div>
-
-                <div class="control-section">
-                    <h3>🎨 Legend</h3>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #ffff00; border-radius: 50%;"></div>
-                        <span>Pac-Man</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #0000ff;"></div>
-                        <span>Walls</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: rgba(100, 100, 255, 0.3);"></div>
-                        <span>Visited Nodes</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: rgba(255, 255, 100, 0.4);"></div>
-                        <span>Frontier</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: rgba(255, 0, 255, 0.6);"></div>
-                        <span>Path</span>
-                    </div>
-                </div>
+          </div>
+          <div class="control-section">
+            <h3>🛰️ Backend</h3>
+            <div class="stats-box" id="backendStatus">
+              <div class="loading">Waiting for server data...</div>
             </div>
+          </div>
+          <div class="control-section">
+            <h3>🎨 Legend</h3>
+            <div class="legend-item">
+              <div
+                class="legend-color"
+                style="background: #ffff00; border-radius: 50%"
+              ></div>
+              <span>Pac-Man</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #0000ff"></div>
+              <span>Walls</span>
+            </div>
+            <div class="legend-item">
+              <div
+                class="legend-color"
+                style="background: rgba(100, 100, 255, 0.3)"
+              ></div>
+              <span>Visited Nodes</span>
+            </div>
+            <div class="legend-item">
+              <div
+                class="legend-color"
+                style="background: rgba(255, 255, 100, 0.4)"
+              ></div>
+              <span>Frontier</span>
+            </div>
+            <div class="legend-item">
+              <div
+                class="legend-color"
+                style="background: rgba(255, 0, 255, 0.6)"
+              ></div>
+              <span>Path</span>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <div class="legend">
-            <h3>ℹ️ About</h3>
-            <p class="about-text">
-                This visualization compares different pathfinding algorithms in a classic Pac-Man maze. 
-                Each ghost uses a different algorithm to find Pac-Man. Click "Show Path" on a ghost to 
-                visualize how its algorithm explores the maze. All pathfinding runs locally in your browser.
-            </p>
-        </div>
+      <div class="legend">
+        <h3>ℹ️ About</h3>
+        <p class="about-text">
+          This visualization compares different pathfinding algorithms in a
+          classic Pac-Man maze. Each ghost uses a different algorithm to find
+          Pac-Man. Click "Show Path" on a ghost to visualize how its algorithm
+          explores the maze. All pathfinding runs locally in your browser.
+        </p>
+      </div>
 
-        <div id="benchmarkResults" class="benchmark-results" style="display: none;">
-            <h3>📊 Benchmark Results</h3>
-            <button class="btn-save" id="btnSaveBenchmark" style="margin-bottom: 15px;">💾 Save to Server</button>
-            <div id="benchmarkContent"></div>
-        </div>
+      <div
+        id="benchmarkResults"
+        class="benchmark-results"
+        style="display: none"
+      >
+        <h3>📊 Benchmark Results</h3>
+        <button
+          class="btn-save"
+          id="btnSaveBenchmark"
+          style="margin-bottom: 15px"
+        >
+          💾 Save to Server
+        </button>
+        <div id="benchmarkContent"></div>
+      </div>
     </div>
 
     <script type="module" src="js/main.js"></script>
-</body>
+  </body>
 </html>
