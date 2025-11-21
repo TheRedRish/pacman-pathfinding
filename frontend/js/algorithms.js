@@ -26,12 +26,9 @@ function getNeighbors(pos, maze, ghosts) {
             newPos.x < maze[0].length &&
             newPos.y >= 0 &&
             newPos.y < maze.length &&
-            maze[newPos.y][newPos.x] !== 1
+            maze[newPos.y][newPos.x] !== 1 // Not a wall
         ) {
-            const hasGhost = ghosts.some((g) => g.x === newPos.x && g.y === newPos.y);
-            if (!hasGhost) {
-                neighbors.push(newPos);
-            }
+            neighbors.push(newPos);
         }
     }
 
