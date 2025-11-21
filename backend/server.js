@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const { performance } = require('perf_hooks');
 require('dotenv').config();
 
 const {
@@ -81,7 +82,7 @@ app.post('/api/pathfind', (req, res) => {
 
     } catch (error) {
         console.error('Pathfinding error:', error);
-        res.status(500).sens({
+        res.status(500).send({
             error: 'Internal server error during pathfinding',
             details: error.message
         });

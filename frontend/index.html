@@ -433,7 +433,10 @@
     <script src="./maze.js"></script>
     <script>
       // Configuration
-      const API_URL = "http://localhost:3000";
+      const API_URL =
+        window.location.origin && window.location.origin !== "null"
+          ? window.location.origin
+          : "http://localhost:3000";
       const CELL_SIZE = 20;
       const MAP_WIDTH = 28;
       const MAP_HEIGHT = 31;
