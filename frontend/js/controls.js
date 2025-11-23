@@ -168,7 +168,6 @@ export class UIController {
 
         return checked;
     }
-    }
 
     setActiveMapButton(mapName) {
         const buttons = this.mapSelector.querySelectorAll(".map-button");
@@ -502,7 +501,8 @@ export class UIController {
     }
 
     displayBenchmarkResults(results) {
-        const trials = results?.[0]?.trials ?? Number(this.benchmarkTrialsInput?.value) || 0;
+        const trialsInput = this.benchmarkTrialsInput?.value;
+        const trials = results?.[0]?.trials ?? (trialsInput ? Number(trialsInput) : 0);
         const mapName = results?.[0]?.mapName ?? this.lastBenchmarkMap;
         const mapLabel = mapName ? MAPS[mapName]?.name ?? mapName : "Unknown map";
         const algorithms = results.map((result) => result.algorithm).join(", ");
