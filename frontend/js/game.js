@@ -13,6 +13,7 @@ export class GameEngine {
         this.lastPlan = null;
         this.isRunning = false;
         this.tickSpeed = 200;
+        this.pacmanRandomness = 0.2;
         this.gameLoopId = null;
 
         this.onPlanComputed = () => { };
@@ -51,9 +52,30 @@ export class GameEngine {
     }
 
     movePacmanTowardsPellet() {
-        const pellets = this.getPellets();
-        if (pellets.length === 0) return;
+        const pellets = this.getPelletsWithinRadius(5);
+        const shouldMoveRandomly = Math.random() < this.pacmanRandomness;
 
+        if (pellets.length > 0 && !shouldMoveRandomly) {
+            const bestPath = this.getBestPelletPath(pellets);
+
+            if (bestPath && bestPath.length > 1) {
+                const next = bestPath[1];
+                this.pacman.x = next.x;
+                this.pacman.y = next.y;
+                this.consumePellet(this.pacman);
+                return;
+            }
+        }
+
+        if (this.isPellet(this.pacman)) {
+            this.consumePellet(this.pacman);
+        }
+
+        this.movePacmanRandomly();
+        this.consumePellet(this.pacman);
+    }
+
+    getBestPelletPath(pellets) {
         let bestPath = null;
 
         for (const pellet of pellets) {
@@ -72,13 +94,50 @@ export class GameEngine {
             }
         }
 
-        if (bestPath && bestPath.length > 1) {
-            const next = bestPath[1];
-            this.pacman.x = next.x;
-            this.pacman.y = next.y;
-        }
+        return bestPath;
+    }
 
-        this.consumePellet(this.pacman);
+    movePacmanRandomly() {
+        const neighbors = this.getOpenNeighbors(this.pacman);
+        if (neighbors.length === 0) return;
+
+        const safeNeighbors = neighbors.filter(
+            (pos) => !this.ghosts?.some((ghost) => ghost.x === pos.x && ghost.y === pos.y)
+        );
+
+        const candidates = safeNeighbors.length > 0 ? safeNeighbors : neighbors;
+        const choice = candidates[Math.floor(Math.random() * candidates.length)];
+        this.pacman.x = choice.x;
+        this.pacman.y = choice.y;
+    }
+
+    getOpenNeighbors(pos) {
+        if (!this.maze) return [];
+
+        const deltas = [
+            { x: 1, y: 0 },
+            { x: -1, y: 0 },
+            { x: 0, y: 1 },
+            { x: 0, y: -1 }
+        ];
+
+        return deltas
+            .map((d) => ({ x: pos.x + d.x, y: pos.y + d.y }))
+            .filter((p) => this.isWithinBounds(p) && this.isWalkable(p));
+    }
+
+    isWithinBounds(pos) {
+        return (
+            pos.y >= 0 &&
+            pos.y < this.maze.length &&
+            pos.x >= 0 &&
+            pos.x < this.maze[0].length
+        );
+    }
+
+    isWalkable(pos) {
+        const cell = this.maze[pos.y]?.[pos.x];
+        return cell !== 1;
     }
 
     getPellets() {
@@ -98,6 +157,14 @@ export class GameEngine {
         return pellets;
     }
 
+    getPelletsWithinRadius(radius) {
+        return this.getPellets().filter((pellet) => {
+            const dx = Math.abs(pellet.x - this.pacman.x);
+            const dy = Math.abs(pellet.y - this.pacman.y);
+            return dx + dy <= radius;
+        });
+    }
+
     isPellet(pos) {
         if (!this.maze) return false;
         const cell = this.maze[pos.y]?.[pos.x];
@@ -108,6 +175,10 @@ export class GameEngine {
         if (this.isPellet(pos)) {
             this.maze[pos.y][pos.x] = 0;
         }
+    }
+
+    setPacmanRandomness(value) {
+        this.pacmanRandomness = Math.min(1, Math.max(0, value));
     }
 
     getCollidingGhost() {

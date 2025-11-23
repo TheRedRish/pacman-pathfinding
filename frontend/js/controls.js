@@ -24,6 +24,9 @@ export class UIController {
         this.speedSlider = document.getElementById("speedSlider");
         this.speedValue = document.getElementById("speedValue");
 
+        this.randomnessSlider = document.getElementById("randomnessSlider");
+        this.randomnessValue = document.getElementById("randomnessValue");
+
         this.benchmarkResultsDiv = document.getElementById("benchmarkResults");
         this.benchmarkContent = document.getElementById("benchmarkContent");
         this.benchmarkProgress = document.getElementById("benchmarkProgress");
@@ -53,6 +56,8 @@ export class UIController {
         this.bindEvents();
         this.updatePlayButton(false);
         this.loadBackendData();
+
+        this.initializeRandomness();
     }
 
     bindEvents() {
@@ -78,6 +83,12 @@ export class UIController {
             this.gameEngine.setTickSpeed(value);
         });
 
+        this.randomnessSlider.addEventListener("input", (e) => {
+            const value = parseInt(e.target.value, 10);
+            this.randomnessValue.textContent = value;
+            this.gameEngine.setPacmanRandomness(value / 100);
+        });
+
         this.btnBenchmark.addEventListener("click", () => {
             this.handleRunBenchmark();
         });
@@ -85,6 +96,14 @@ export class UIController {
         this.btnSaveBenchmark.addEventListener("click", () => {
             this.handleSaveBenchmark();
         });
+    }
+
+    initializeRandomness() {
+        if (!this.randomnessSlider || !this.randomnessValue) return;
+
+        const value = parseInt(this.randomnessSlider.value, 10) || 0;
+        this.randomnessValue.textContent = value;
+        this.gameEngine.setPacmanRandomness(value / 100);
     }
 
     buildMapButtons() {
