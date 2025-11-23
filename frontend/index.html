@@ -34,6 +34,32 @@
               step="50"
             />
           </div>
+
+          <div class="slider-control">
+            <label>
+              Pac-Man randomness: <span id="randomnessValue">20</span>%
+            </label>
+            <input
+              type="range"
+              id="randomnessSlider"
+              min="0"
+              max="100"
+              value="20"
+              step="5"
+            />
+          </div>
+
+          <div class="slider-control">
+            <label>Ghosts: <span id="ghostCountValue">4</span></label>
+            <input
+              type="range"
+              id="ghostCountSlider"
+              min="1"
+              max="4"
+              value="4"
+              step="1"
+            />
+          </div>
         </div>
 
         <div class="controls">
@@ -78,10 +104,6 @@
         <h3>📊 Benchmark</h3>
         <div class="benchmark-controls">
           <div class="form-field">
-            <label for="benchmarkMap">Map</label>
-            <select id="benchmarkMap"></select>
-          </div>
-          <div class="form-field">
             <label for="benchmarkTrials">Trials per algorithm</label>
             <input
               type="number"
@@ -91,10 +113,6 @@
               step="1"
               value="10"
             />
-          </div>
-          <div class="form-field">
-            <label>Algorithms</label>
-            <div id="benchmarkAlgorithms" class="checkbox-grid"></div>
           </div>
           <div class="form-field" style="align-self: flex-end">
             <button id="btnBenchmark" class="btn-benchmark">📊 Run Benchmark</button>
