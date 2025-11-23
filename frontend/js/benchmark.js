@@ -4,19 +4,26 @@ import { API_URL } from "./api.js";
 
 export async function runBenchmark(
     mapName,
-    { trials = 10, maxTicks = 500 } = {},
+    { trials = 10, maxTicks = 500, algorithms = ALGORITHM_NAMES } = {},
     onProgress = () => { }
 ) {
     const map = MAPS[mapName];
     if (!map) throw new Error(`Unknown map: ${mapName}`);
 
+    const selectedAlgorithms = (algorithms && algorithms.length ? algorithms : ALGORITHM_NAMES)
+        .filter((name) => ALGORITHM_NAMES.includes(name));
+
+    if (selectedAlgorithms.length === 0) {
+        throw new Error("No valid algorithms selected for benchmark");
+    }
+
     const results = [];
-    const totalSteps = ALGORITHM_NAMES.length * trials;
+    const totalSteps = selectedAlgorithms.length * trials;
     let completedSteps = 0;
 
     onProgress(0);
 
-    for (const algoName of ALGORITHM_NAMES) {
+    for (const algoName of selectedAlgorithms) {
         let totalTime = 0;
         let totalNodes = 0;
         let totalTicks = 0;

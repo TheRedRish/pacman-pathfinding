@@ -338,6 +338,50 @@ select {
     margin-top: 20px;
 }
 
+.benchmark-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-field label {
+    font-weight: 600;
+    color: #ffff00;
+}
+
+.form-field input,
+.form-field select {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #555;
+    background: #0f162a;
+    color: #fff;
+}
+
+.checkbox-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.checkbox-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 20px;
+    border: 1px solid #555;
+    background: #0f162a;
+    color: #fff;
+}
+
 .benchmark-table {
     width: 100%;
     border-collapse: collapse;
@@ -358,6 +402,23 @@ select {
 
 .benchmark-table tr:hover {
     background: #222;
+}
+
+.benchmark-content {
+    margin-top: 10px;
+    margin-bottom: 12px;
+}
+
+.benchmark-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+    color: #ccc;
+    margin-bottom: 10px;
+}
+
+.benchmark-summary strong {
+    color: #fff;
 }
 
 .loading {

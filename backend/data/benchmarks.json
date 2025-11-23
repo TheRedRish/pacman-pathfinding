@@ -1,1 +1,37 @@
-[]
+[
+  {
+    "id": "1763910654420",
+    "mapName": "classic",
+    "results": [
+      {
+        "algorithm": "BFS",
+        "avgTimeMs": 0.006756200000047684,
+        "avgNodesVisited": 9.892,
+        "avgTicksToCatch": 34,
+        "catchRate": 1,
+        "trials": 1000,
+        "mapName": "classic"
+      },
+      {
+        "algorithm": "Dijkstra",
+        "avgTimeMs": 0.008523799999952316,
+        "avgNodesVisited": 9.892,
+        "avgTicksToCatch": 34,
+        "catchRate": 1,
+        "trials": 1000,
+        "mapName": "classic"
+      },
+      {
+        "algorithm": "A*",
+        "avgTimeMs": 0.0026775999994277954,
+        "avgNodesVisited": 2.866,
+        "avgTicksToCatch": 34,
+        "catchRate": 1,
+        "trials": 1000,
+        "mapName": "classic"
+      }
+    ],
+    "timestamp": "2025-11-23T15:10:54.404Z",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+  }
+]
