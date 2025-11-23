@@ -14,6 +14,9 @@ export class GameEngine {
         this.isRunning = false;
         this.tickSpeed = 200;
         this.pacmanRandomness = 0.2;
+        this.ghostStartDelay = 10;
+        this.ticksElapsed = 0;
+        this.ghostCount = 4;
         this.gameLoopId = null;
 
         this.onPlanComputed = () => { };
@@ -35,8 +38,16 @@ export class GameEngine {
         this.maze = map.data.map((row) => [...row]);
         this.pacman = { ...map.pacman };
 
+        const availableGhosts = map.ghosts || [];
+        const desiredCount = Math.min(
+            Math.max(1, this.ghostCount || availableGhosts.length),
+            Math.min(4, availableGhosts.length)
+        );
+        this.ghostCount = desiredCount;
+        this.ticksElapsed = 0;
+
         const existingGhosts = this.ghosts || [];
-        this.ghosts = map.ghosts.map((g) => {
+        this.ghosts = availableGhosts.slice(0, desiredCount).map((g) => {
             const existing = existingGhosts.find((eg) => eg.id === g.id);
             return {
                 ...g,
@@ -181,6 +192,20 @@ export class GameEngine {
         this.pacmanRandomness = Math.min(1, Math.max(0, value));
     }
 
+    setGhostCount(count) {
+        const map = MAPS[this.currentMapName];
+        if (!map) return;
+
+        const maxGhosts = Math.min(4, map.ghosts?.length || 0);
+        const clamped = Math.max(1, Math.min(count, maxGhosts || 1));
+
+        if (clamped === this.ghostCount) return;
+
+        this.stopLoop();
+        this.ghostCount = clamped;
+        this.loadMap(this.currentMapName);
+    }
+
     getCollidingGhost() {
         return this.ghosts?.find(
             (ghost) => ghost.x === this.pacman.x && ghost.y === this.pacman.y
@@ -193,6 +218,10 @@ export class GameEngine {
 
     getGhosts() {
         return this.ghosts.map((g) => ({ ...g }));
+    }
+
+    getGhostCount() {
+        return this.ghostCount;
     }
 
     getVisualizingGhostId() {
@@ -287,6 +316,7 @@ export class GameEngine {
     tick() {
         if (!this.maze || !this.pacman || !this.ghosts) return;
 
+        this.ticksElapsed += 1;
         this.movePacmanTowardsPellet();
 
         const initialCollision = this.getCollidingGhost();
@@ -297,7 +327,25 @@ export class GameEngine {
             return;
         }
 
+        const ghostsCanMove = this.ticksElapsed > this.ghostStartDelay;
+
         for (const ghost of this.ghosts) {
+            if (!ghostsCanMove) {
+                if (this.visualizingGhostId === ghost.id) {
+                    const plan = runAlgorithm(
+                        ghost.algorithm,
+                        { x: ghost.x, y: ghost.y },
+                        this.pacman,
+                        this.maze,
+                        this.ghosts
+                    );
+
+                    this.lastPlan = plan;
+                    this.onPlanComputed(ghost, plan);
+                }
+                continue;
+            }
+
             const plan = runAlgorithm(
                 ghost.algorithm,
                 { x: ghost.x, y: ghost.y },

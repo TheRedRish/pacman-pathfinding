@@ -27,6 +27,9 @@ export class UIController {
         this.randomnessSlider = document.getElementById("randomnessSlider");
         this.randomnessValue = document.getElementById("randomnessValue");
 
+        this.ghostCountSlider = document.getElementById("ghostCountSlider");
+        this.ghostCountValue = document.getElementById("ghostCountValue");
+
         this.benchmarkResultsDiv = document.getElementById("benchmarkResults");
         this.benchmarkContent = document.getElementById("benchmarkContent");
         this.benchmarkProgress = document.getElementById("benchmarkProgress");
@@ -58,6 +61,7 @@ export class UIController {
         this.loadBackendData();
 
         this.initializeRandomness();
+        this.initializeGhostCount();
     }
 
     bindEvents() {
@@ -75,6 +79,7 @@ export class UIController {
             this.buildGhostControls();
             this.updateStatsPlaceholder();
             this.updatePlayButton(false);
+            this.syncGhostCountFromEngine();
         });
 
         this.speedSlider.addEventListener("input", (e) => {
@@ -87,6 +92,16 @@ export class UIController {
             const value = parseInt(e.target.value, 10);
             this.randomnessValue.textContent = value;
             this.gameEngine.setPacmanRandomness(value / 100);
+        });
+
+        this.ghostCountSlider.addEventListener("input", (e) => {
+            const value = parseInt(e.target.value, 10);
+            this.ghostCountValue.textContent = value;
+            this.gameEngine.setGhostCount(value);
+            this.syncGhostCountFromEngine();
+            this.buildGhostControls();
+            this.updateStatsPlaceholder();
+            this.updatePlayButton(false);
         });
 
         this.btnBenchmark.addEventListener("click", () => {
@@ -104,6 +119,12 @@ export class UIController {
         const value = parseInt(this.randomnessSlider.value, 10) || 0;
         this.randomnessValue.textContent = value;
         this.gameEngine.setPacmanRandomness(value / 100);
+    }
+
+    initializeGhostCount() {
+        if (!this.ghostCountSlider || !this.ghostCountValue) return;
+
+        this.syncGhostCountFromEngine();
     }
 
     buildMapButtons() {
@@ -124,6 +145,7 @@ export class UIController {
                 this.buildGhostControls();
                 this.updateStatsPlaceholder();
                 this.updatePlayButton(false);
+                this.syncGhostCountFromEngine();
                 this.setActiveMapButton(key);
             });
 
@@ -207,6 +229,17 @@ export class UIController {
         if (mapName) {
             this.benchmarkMapSelect.value = mapName;
         }
+    }
+
+    syncGhostCountFromEngine() {
+        if (!this.ghostCountSlider || !this.ghostCountValue) return;
+
+        const mapGhosts = MAPS[this.gameEngine.getCurrentMapName()]?.ghosts?.length || 4;
+        this.ghostCountSlider.max = Math.min(4, mapGhosts);
+
+        const count = this.gameEngine.getGhostCount();
+        this.ghostCountSlider.value = count;
+        this.ghostCountValue.textContent = count;
     }
 
     buildGhostControls() {
