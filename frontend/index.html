@@ -21,9 +21,6 @@
             <button id="btnPlay" class="btn-play">▶ Play</button>
             <button id="btnStep" class="btn-step">⏭ Step</button>
             <button id="btnReset" class="btn-reset">🔄 Reset</button>
-            <button id="btnBenchmark" class="btn-benchmark">
-              📊 Benchmark
-            </button>
           </div>
 
           <div class="slider-control">
@@ -77,24 +74,38 @@
         </p>
       </div>
 
-      <div
-        id="benchmarkResults"
-        class="benchmark-results"
-        style="display: none"
-      >
-        <h3>📊 Benchmark Results</h3>
-        <button
-          class="btn-save"
-          id="btnSaveBenchmark"
-          style="margin-bottom: 15px"
-        >
-          💾 Save to Server
-        </button>
+      <div id="benchmarkResults" class="benchmark-results">
+        <h3>📊 Benchmark</h3>
+        <div class="benchmark-controls">
+          <div class="form-field">
+            <label for="benchmarkMap">Map</label>
+            <select id="benchmarkMap"></select>
+          </div>
+          <div class="form-field">
+            <label for="benchmarkTrials">Trials per algorithm</label>
+            <input
+              type="number"
+              id="benchmarkTrials"
+              min="1"
+              max="200"
+              step="1"
+              value="10"
+            />
+          </div>
+          <div class="form-field">
+            <label>Algorithms</label>
+            <div id="benchmarkAlgorithms" class="checkbox-grid"></div>
+          </div>
+          <div class="form-field" style="align-self: flex-end">
+            <button id="btnBenchmark" class="btn-benchmark">📊 Run Benchmark</button>
+          </div>
+        </div>
         <div class="progress-wrapper" id="benchmarkProgress" aria-live="polite">
           <div class="progress-bar" id="benchmarkProgressBar"></div>
           <div class="progress-label" id="benchmarkProgressLabel">Waiting to start...</div>
         </div>
-        <div id="benchmarkContent"></div>
+        <div id="benchmarkContent" class="benchmark-content"></div>
+        <button class="btn-save" id="btnSaveBenchmark" disabled>💾 Save to Server</button>
       </div>
     </div>
 
