@@ -1,5 +1,5 @@
 import { MAPS, registerCustomMaps } from "./maps.js";
-import { runBenchmark, saveBenchmarkResults } from "./benchmark.js";
+import { saveBenchmarkResults } from "./benchmark.js";
 import { fetchBackendHealth, fetchBenchmarkStats, fetchSavedMaps } from "./api.js";
 
 export class UIController {
@@ -21,11 +21,17 @@ export class UIController {
 
         this.benchmarkResultsDiv = document.getElementById("benchmarkResults");
         this.benchmarkContent = document.getElementById("benchmarkContent");
+        this.benchmarkProgress = document.getElementById("benchmarkProgress");
+        this.benchmarkProgressBar = document.getElementById("benchmarkProgressBar");
+        this.benchmarkProgressLabel = document.getElementById("benchmarkProgressLabel");
 
         this.backendStatusDiv = document.getElementById("backendStatus");
         this.backendConnected = false;
 
         this.lastBenchmarkResults = null;
+        this.benchmarkWorker = null;
+        this.benchmarkResolve = null;
+        this.benchmarkReject = null;
 
         this.ghostPathButtons = new Map();
 
@@ -243,18 +249,87 @@ export class UIController {
         this.benchmarkContent.innerHTML = `<div class="loading">Running benchmark... This may take a moment.</div>`;
         this.btnBenchmark.disabled = true;
         this.btnSaveBenchmark.disabled = true;
+        this.updateBenchmarkProgress(0, "Starting benchmark...");
+        this.toggleBenchmarkProgress(true);
 
         try {
-            const results = await runBenchmark(mapName, { trials: 10, maxTicks: 500 });
-            this.lastBenchmarkResults = results;
-            this.displayBenchmarkResults(results);
-            this.btnSaveBenchmark.disabled = false;
+            const results = await this.runBenchmarkViaWorker(mapName);
+            if (results) {
+                this.lastBenchmarkResults = results;
+                this.displayBenchmarkResults(results);
+                this.btnSaveBenchmark.disabled = false;
+            }
         } catch (err) {
             console.error(err);
             this.benchmarkContent.innerHTML = `<div class="loading">Benchmark failed.</div>`;
         } finally {
+            this.toggleBenchmarkProgress(false);
             this.btnBenchmark.disabled = false;
         }
+    }
+
+    ensureBenchmarkWorker() {
+        if (this.benchmarkWorker) return;
+
+        this.benchmarkWorker = new Worker(new URL("./benchmarkWorker.js", import.meta.url), {
+            type: "module",
+        });
+
+        this.benchmarkWorker.onmessage = (event) => this.handleBenchmarkMessage(event);
+    }
+
+    handleBenchmarkMessage(event) {
+        const { type, progress, results, message } = event.data;
+
+        if (type === "progress") {
+            this.updateBenchmarkProgress(progress, "Benchmark in progress...");
+            return;
+        }
+
+        if (type === "result") {
+            this.updateBenchmarkProgress(1, "Benchmark complete!");
+            if (this.benchmarkResolve) this.benchmarkResolve(results);
+            this.clearBenchmarkPromise();
+            return;
+        }
+
+        if (type === "error") {
+            this.benchmarkContent.innerHTML = `<div class="loading">Benchmark failed: ${message}</div>`;
+            if (this.benchmarkReject) this.benchmarkReject(new Error(message));
+            this.clearBenchmarkPromise();
+        }
+    }
+
+    clearBenchmarkPromise() {
+        this.benchmarkResolve = null;
+        this.benchmarkReject = null;
+    }
+
+    runBenchmarkViaWorker(mapName) {
+        this.ensureBenchmarkWorker();
+
+        return new Promise((resolve, reject) => {
+            this.benchmarkResolve = resolve;
+            this.benchmarkReject = reject;
+
+            this.benchmarkWorker.postMessage({
+                mapName,
+                options: { trials: 10, maxTicks: 500 },
+            });
+        });
+    }
+
+    toggleBenchmarkProgress(show) {
+        if (!this.benchmarkProgress) return;
+        this.benchmarkProgress.style.display = show ? "block" : "none";
+    }
+
+    updateBenchmarkProgress(progress, labelText = "") {
+        if (!this.benchmarkProgressBar || !this.benchmarkProgressLabel) return;
+
+        const percentage = Math.min(100, Math.max(0, Math.round(progress * 100)));
+        this.benchmarkProgressBar.style.width = `${percentage}%`;
+        this.benchmarkProgressLabel.textContent = labelText || `Progress: ${percentage}%`;
     }
 
     async loadBackendData() {

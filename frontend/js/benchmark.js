@@ -2,11 +2,19 @@ import { MAPS } from "./maps.js";
 import { ALGORITHM_NAMES, runAlgorithm } from "./algorithms.js";
 import { API_URL } from "./api.js";
 
-export async function runBenchmark(mapName, { trials = 10, maxTicks = 500 } = {}) {
+export async function runBenchmark(
+    mapName,
+    { trials = 10, maxTicks = 500 } = {},
+    onProgress = () => { }
+) {
     const map = MAPS[mapName];
     if (!map) throw new Error(`Unknown map: ${mapName}`);
 
     const results = [];
+    const totalSteps = ALGORITHM_NAMES.length * trials;
+    let completedSteps = 0;
+
+    onProgress(0);
 
     for (const algoName of ALGORITHM_NAMES) {
         let totalTime = 0;
@@ -41,6 +49,9 @@ export async function runBenchmark(mapName, { trials = 10, maxTicks = 500 } = {}
             if (!caught) {
                 totalTicks += maxTicks;
             }
+
+            completedSteps++;
+            onProgress(completedSteps / totalSteps);
         }
 
         results.push({
@@ -53,6 +64,8 @@ export async function runBenchmark(mapName, { trials = 10, maxTicks = 500 } = {}
             mapName
         });
     }
+
+    onProgress(1);
 
     return results;
 }
