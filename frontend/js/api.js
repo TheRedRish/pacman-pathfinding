@@ -1,5 +1,16 @@
 const apiBaseFromLocation = () => {
-    const { protocol, hostname, port } = window.location;
+    const locationSource =
+        typeof window !== "undefined" && window.location
+            ? window.location
+            : typeof self !== "undefined" && self.location
+                ? self.location
+                : null;
+
+    if (!locationSource) {
+        throw new Error("Unable to determine API base: missing location context");
+    }
+
+    const { protocol, hostname, port } = locationSource;
     const base = `${protocol}//${hostname}`;
     return port ? `${base}:${port}` : base;
 };
