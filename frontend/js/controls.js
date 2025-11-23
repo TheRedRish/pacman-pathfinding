@@ -1,4 +1,3 @@
-import { ALGORITHM_NAMES } from "./algorithms.js";
 import { MAPS, registerCustomMaps } from "./maps.js";
 import { saveBenchmarkResults } from "./benchmark.js";
 import { fetchBackendHealth, fetchBenchmarkStats, fetchSavedMaps } from "./api.js";
@@ -17,9 +16,7 @@ export class UIController {
         this.btnBenchmark = document.getElementById("btnBenchmark");
         this.btnSaveBenchmark = document.getElementById("btnSaveBenchmark");
 
-        this.benchmarkMapSelect = document.getElementById("benchmarkMap");
         this.benchmarkTrialsInput = document.getElementById("benchmarkTrials");
-        this.benchmarkAlgorithmsContainer = document.getElementById("benchmarkAlgorithms");
 
         this.speedSlider = document.getElementById("speedSlider");
         this.speedValue = document.getElementById("speedValue");
@@ -52,7 +49,6 @@ export class UIController {
 
     init() {
         this.buildMapButtons();
-        this.buildBenchmarkControls();
         this.buildGhostControls();
         this.updateStatsPlaceholder();
         this.updateBenchmarkPlaceholder();
@@ -152,62 +148,6 @@ export class UIController {
             this.mapSelector.appendChild(btn);
         });
 
-        this.syncBenchmarkMapSelection();
-    }
-
-    buildBenchmarkControls() {
-        this.buildBenchmarkMapOptions();
-        this.buildBenchmarkAlgorithmOptions();
-        this.syncBenchmarkMapSelection();
-    }
-
-    buildBenchmarkMapOptions() {
-        if (!this.benchmarkMapSelect) return;
-
-        this.benchmarkMapSelect.innerHTML = "";
-
-        Object.entries(MAPS).forEach(([key, map]) => {
-            const option = document.createElement("option");
-            option.value = key;
-            option.textContent = map.name;
-            this.benchmarkMapSelect.appendChild(option);
-        });
-    }
-
-    buildBenchmarkAlgorithmOptions() {
-        if (!this.benchmarkAlgorithmsContainer) return;
-
-        this.benchmarkAlgorithmsContainer.innerHTML = "";
-
-        ALGORITHM_NAMES.forEach((algo) => {
-            const label = document.createElement("label");
-            label.className = "checkbox-pill";
-
-            const input = document.createElement("input");
-            input.type = "checkbox";
-            input.value = algo;
-            input.checked = true;
-
-            const text = document.createElement("span");
-            text.textContent = algo;
-
-            label.appendChild(input);
-            label.appendChild(text);
-
-            this.benchmarkAlgorithmsContainer.appendChild(label);
-        });
-    }
-
-    getSelectedBenchmarkAlgorithms() {
-        if (!this.benchmarkAlgorithmsContainer) return ALGORITHM_NAMES;
-
-        const checked = Array.from(
-            this.benchmarkAlgorithmsContainer.querySelectorAll("input[type='checkbox']")
-        )
-            .filter((input) => input.checked)
-            .map((input) => input.value);
-
-        return checked;
     }
 
     setActiveMapButton(mapName) {
@@ -220,15 +160,6 @@ export class UIController {
             }
         });
 
-        this.syncBenchmarkMapSelection(mapName);
-    }
-
-    syncBenchmarkMapSelection(mapName = this.gameEngine.getCurrentMapName()) {
-        if (!this.benchmarkMapSelect) return;
-
-        if (mapName) {
-            this.benchmarkMapSelect.value = mapName;
-        }
     }
 
     syncGhostCountFromEngine() {
@@ -328,7 +259,7 @@ export class UIController {
 
         this.benchmarkContent.innerHTML = `
             <div class="loading">
-                Configure the benchmark and click "Run Benchmark" to see results.
+                Click "Run Benchmark" to evaluate the current game settings without rendering.
             </div>
         `;
 
@@ -385,22 +316,12 @@ export class UIController {
     }
 
     async handleRunBenchmark() {
-        const mapName = this.benchmarkMapSelect?.value || this.gameEngine.getCurrentMapName();
+        const mapName = this.gameEngine.getCurrentMapName();
         const trials = parseInt(this.benchmarkTrialsInput?.value, 10) || 10;
-        const algorithms = this.getSelectedBenchmarkAlgorithms();
-
-        if (!mapName) {
-            alert("Please select a map to benchmark.");
-            return;
-        }
+        const activeGhosts = this.gameEngine.getGhosts();
 
         if (!Number.isFinite(trials) || trials < 1) {
             alert("Trials must be a positive number.");
-            return;
-        }
-
-        if (algorithms.length === 0) {
-            alert("Select at least one algorithm to benchmark.");
             return;
         }
 
@@ -416,7 +337,10 @@ export class UIController {
             const results = await this.runBenchmarkViaWorker(mapName, {
                 trials,
                 maxTicks: 500,
-                algorithms,
+                pacmanRandomness: this.gameEngine.getPacmanRandomness(),
+                ghostCount: this.gameEngine.getGhostCount(),
+                ghostStartDelay: this.gameEngine.getGhostStartDelay(),
+                ghostAlgorithms: activeGhosts.map((ghost) => ghost.algorithm),
             });
             if (results) {
                 this.lastBenchmarkResults = results;
@@ -469,7 +393,7 @@ export class UIController {
         this.benchmarkReject = null;
     }
 
-    runBenchmarkViaWorker(mapName, options = { trials: 10, maxTicks: 500, algorithms: ALGORITHM_NAMES }) {
+    runBenchmarkViaWorker(mapName, options = { trials: 10, maxTicks: 500 }) {
         this.ensureBenchmarkWorker();
 
         return new Promise((resolve, reject) => {
@@ -511,8 +435,6 @@ export class UIController {
             if (Array.isArray(savedMaps) && savedMaps.length > 0) {
                 registerCustomMaps(savedMaps);
                 this.buildMapButtons();
-                this.buildBenchmarkMapOptions();
-                this.syncBenchmarkMapSelection();
             }
 
             this.backendConnected = true;

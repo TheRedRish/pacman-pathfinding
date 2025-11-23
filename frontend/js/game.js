@@ -3,8 +3,8 @@ import { runAlgorithm } from "./algorithms.js";
 import { Renderer } from "./rendering.js";
 
 export class GameEngine {
-    constructor(canvas) {
-        this.renderer = new Renderer(canvas);
+    constructor(canvas, { enableRendering = true } = {}) {
+        this.renderer = enableRendering && canvas ? new Renderer(canvas) : null;
         this.currentMapName = "classic";
         this.maze = null;
         this.pacman = null;
@@ -58,7 +58,9 @@ export class GameEngine {
         this.visualizingGhostId = null;
         this.lastPlan = null;
 
-        this.renderer.resize(map.width, map.height);
+        if (this.renderer) {
+            this.renderer.resize(map.width, map.height);
+        }
         this.render();
     }
 
@@ -190,6 +192,18 @@ export class GameEngine {
 
     setPacmanRandomness(value) {
         this.pacmanRandomness = Math.min(1, Math.max(0, value));
+    }
+
+    getPacmanRandomness() {
+        return this.pacmanRandomness;
+    }
+
+    setGhostStartDelay(value) {
+        this.ghostStartDelay = Math.max(0, value);
+    }
+
+    getGhostStartDelay() {
+        return this.ghostStartDelay;
     }
 
     setGhostCount(count) {
@@ -375,6 +389,8 @@ export class GameEngine {
     }
 
     render() {
-        this.renderer.render(this.getState());
+        if (this.renderer) {
+            this.renderer.render(this.getState());
+        }
     }
 }
