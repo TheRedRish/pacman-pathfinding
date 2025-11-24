@@ -61,11 +61,17 @@ app.get('/api/health', (req, res) => {
  */
 app.post('/api/benchmarks', async (req, res) => {
     try {
-        const { mapName, results, timestamp } = req.body;
+        const { mapName, results, timestamp, pacmanRandomness } = req.body;
 
-        if (!mapName || !results || !timestamp) {
+        if (!mapName || !results || !timestamp || pacmanRandomness === undefined) {
             return res.status(400).json({
-                error: 'Missing required fields: mapName, results, timestamp'
+                error: 'Missing required fields: mapName, results, timestamp, pacmanRandomness'
+            });
+        }
+
+        if (typeof pacmanRandomness !== 'number' || Number.isNaN(pacmanRandomness)) {
+            return res.status(400).json({
+                error: 'pacmanRandomness must be a number'
             });
         }
 
@@ -79,6 +85,7 @@ app.post('/api/benchmarks', async (req, res) => {
             mapName,
             results,
             timestamp,
+            pacmanRandomness,
             userAgent: req.headers['user-agent']
         };
 
@@ -325,11 +332,11 @@ app.get('/api/export/benchmarks', async (req, res) => {
         const benchmarks = JSON.parse(data);
 
         // Generate CSV
-        let csv = 'Timestamp,Map,Algorithm,Avg Time (ms),Avg Nodes,Avg Ticks,Catch Rate\n';
+        let csv = 'Timestamp,Map,Pacman Randomness,Algorithm,Avg Time (ms),Avg Nodes,Avg Ticks,Catch Rate\n';
 
         benchmarks.forEach(benchmark => {
             benchmark.results.forEach(result => {
-                csv += `${benchmark.timestamp},${benchmark.mapName},${result.algorithm},`;
+                csv += `${benchmark.timestamp},${benchmark.mapName},${benchmark.pacmanRandomness ?? ''},${result.algorithm},`;
                 csv += `${result.avgTimeMs},${result.avgNodesVisited},${result.avgTicksToCatch},${result.catchRate}\n`;
             });
         });
