@@ -296,5 +296,81 @@
     "pacmanRandomness": 0.2,
     "note": "A* Test - No weight",
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1763996464087",
+    "mapName": "classic",
+    "results": [
+      {
+        "algorithm": "BFS",
+        "avgTimeMs": 0.017118952218977145,
+        "avgNodesVisited": 24.80505010458392,
+        "avgTicksToCatch": 84.144,
+        "catchRate": 0.997,
+        "trials": 1000,
+        "mapName": "classic"
+      }
+    ],
+    "timestamp": "2025-11-24T15:01:04.076Z",
+    "pacmanRandomness": 0.2,
+    "note": "BFS Test - Classic",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1763996649675",
+    "mapName": "classic",
+    "results": [
+      {
+        "algorithm": "DFS",
+        "avgTimeMs": 0.10167979591123912,
+        "avgNodesVisited": 202.99984285714285,
+        "avgTicksToCatch": 500,
+        "catchRate": 0,
+        "trials": 1000,
+        "mapName": "classic"
+      }
+    ],
+    "timestamp": "2025-11-24T15:04:09.673Z",
+    "pacmanRandomness": 0.2,
+    "note": "DFS Test - Classic",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1763996674869",
+    "mapName": "classic",
+    "results": [
+      {
+        "algorithm": "Dijkstra",
+        "avgTimeMs": 0.030454754930937945,
+        "avgNodesVisited": 30.028273830301167,
+        "avgTicksToCatch": 82.615,
+        "catchRate": 0.994,
+        "trials": 1000,
+        "mapName": "classic"
+      }
+    ],
+    "timestamp": "2025-11-24T15:04:34.866Z",
+    "pacmanRandomness": 0.2,
+    "note": "Dijkstra Test - Classic",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1763996691386",
+    "mapName": "classic",
+    "results": [
+      {
+        "algorithm": "A*",
+        "avgTimeMs": 0.007785790736059851,
+        "avgNodesVisited": 7.029946447697251,
+        "avgTicksToCatch": 81.022,
+        "catchRate": 0.997,
+        "trials": 1000,
+        "mapName": "classic"
+      }
+    ],
+    "timestamp": "2025-11-24T15:04:51.383Z",
+    "pacmanRandomness": 0.2,
+    "note": "A* Test - Classic",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
   }
 ]
