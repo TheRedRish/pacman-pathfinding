@@ -533,6 +533,17 @@ select {
     margin-top: 10px;
 }
 
+.comparison-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+    align-items: start;
+}
+
+.comparison-section h4 {
+    margin: 0;
+}
+
 .comparison-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -550,6 +561,11 @@ select {
     width: 100%;
     border-collapse: collapse;
     margin-top: 12px;
+}
+
+.comparison-table.compact th,
+.comparison-table.compact td {
+    font-size: 0.95em;
 }
 
 .comparison-table th,
