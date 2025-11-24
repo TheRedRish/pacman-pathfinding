@@ -397,9 +397,10 @@ app.use((req, res) => {
     res.status(404).json({ error: 'Route not found' });
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`
+// Start server when run directly
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`
 ╔═══════════════════════════════════════════════════════════╗
 ║                                                           ║
 ║   PAC-MAN PATHFINDING SERVER                              ║
@@ -418,6 +419,7 @@ app.listen(PORT, () => {
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
   `);
-});
+    });
+}
 
 module.exports = app;
