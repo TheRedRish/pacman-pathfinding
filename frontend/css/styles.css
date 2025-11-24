@@ -404,6 +404,13 @@ select {
     gap: 8px;
 }
 
+.builder-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    grid-column: span 2;
+}
+
 .checkbox-grid {
     display: flex;
     flex-wrap: wrap;

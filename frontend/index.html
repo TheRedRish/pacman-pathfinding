@@ -75,6 +75,15 @@
           <div class="control-section">
             <h3>🛠️ Custom Map Builder</h3>
             <div class="custom-map-grid">
+              <div class="form-field" style="grid-column: span 2">
+                <label for="customMapName">Map name</label>
+                <input
+                  type="text"
+                  id="customMapName"
+                  maxlength="60"
+                  placeholder="Custom labyrinth"
+                />
+              </div>
               <div class="form-field">
                 <label for="customMapWidth">Width</label>
                 <input type="number" id="customMapWidth" min="5" max="50" value="15" />
@@ -118,7 +127,11 @@
                   <input type="number" id="customGhost4Y" min="1" value="6" />
                 </div>
               </div>
-              <button class="btn-save" id="btnGenerateCustomMap">🎲 Generate custom map</button>
+              <div class="builder-actions">
+                <button class="btn-save" id="btnGenerateCustomMap">🎲 Generate labyrinth</button>
+                <button class="btn-save" id="btnApplySpawns">🎯 Apply spawn positions</button>
+                <button class="btn-save" id="btnSaveCustomMap">💾 Save map</button>
+              </div>
             </div>
           </div>
 
