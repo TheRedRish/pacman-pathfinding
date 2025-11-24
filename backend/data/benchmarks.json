@@ -1,37 +1,74 @@
 [
   {
-    "id": "1763910654420",
+    "id": "1763977857734",
     "mapName": "classic",
     "results": [
       {
         "algorithm": "BFS",
-        "avgTimeMs": 0.006756200000047684,
-        "avgNodesVisited": 9.892,
-        "avgTicksToCatch": 34,
-        "catchRate": 1,
-        "trials": 1000,
-        "mapName": "classic"
-      },
-      {
-        "algorithm": "Dijkstra",
-        "avgTimeMs": 0.008523799999952316,
-        "avgNodesVisited": 9.892,
-        "avgTicksToCatch": 34,
-        "catchRate": 1,
-        "trials": 1000,
-        "mapName": "classic"
-      },
-      {
-        "algorithm": "A*",
-        "avgTimeMs": 0.0026775999994277954,
-        "avgNodesVisited": 2.866,
-        "avgTicksToCatch": 34,
+        "avgTimeMs": 0.034982981553606796,
+        "avgNodesVisited": 50.515112321307015,
+        "avgTicksToCatch": 39.38,
         "catchRate": 1,
         "trials": 1000,
         "mapName": "classic"
       }
     ],
-    "timestamp": "2025-11-23T15:10:54.404Z",
+    "timestamp": "2025-11-24T09:50:57.724Z",
+    "pacmanRandomness": 0.2,
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1763978070726",
+    "mapName": "classic",
+    "results": [
+      {
+        "algorithm": "DFS",
+        "avgTimeMs": 0.1033472523829446,
+        "avgNodesVisited": 203.73644006458437,
+        "avgTicksToCatch": 459.025,
+        "catchRate": 0.144,
+        "trials": 1000,
+        "mapName": "classic"
+      }
+    ],
+    "timestamp": "2025-11-24T09:54:30.715Z",
+    "pacmanRandomness": 0.2,
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1763978126834",
+    "mapName": "classic",
+    "results": [
+      {
+        "algorithm": "Dijkstra",
+        "avgTimeMs": 0.06742291830598346,
+        "avgNodesVisited": 64.07369083409075,
+        "avgTicksToCatch": 38.606,
+        "catchRate": 1,
+        "trials": 1000,
+        "mapName": "classic"
+      }
+    ],
+    "timestamp": "2025-11-24T09:55:26.824Z",
+    "pacmanRandomness": 0.2,
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1763978138149",
+    "mapName": "classic",
+    "results": [
+      {
+        "algorithm": "A*",
+        "avgTimeMs": 0.013442522635935133,
+        "avgNodesVisited": 13.153759896700533,
+        "avgTicksToCatch": 39.429,
+        "catchRate": 1,
+        "trials": 1000,
+        "mapName": "classic"
+      }
+    ],
+    "timestamp": "2025-11-24T09:55:38.135Z",
+    "pacmanRandomness": 0.2,
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
   }
 ]

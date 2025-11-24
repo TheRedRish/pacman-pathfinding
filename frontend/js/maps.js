@@ -7,10 +7,10 @@ export const MAPS = {
         height: 31,
         pacman: { x: 14, y: 23 },
         ghosts: [
-            { id: 1, x: 1, y: 1, algorithm: "BFS", color: "#ff0000", name: "Blinky" },
-            { id: 2, x: 26, y: 1, algorithm: "DFS", color: "#ffb8ff", name: "Pinky" },
-            { id: 3, x: 1, y: 29, algorithm: "Dijkstra", color: "#00ffff", name: "Inky" },
-            { id: 4, x: 26, y: 29, algorithm: "A*", color: "#ffb852", name: "Clyde" }
+            { id: 1, x: 13, y: 13, algorithm: "BFS", color: "#ff0000", name: "Blinky" },
+            { id: 2, x: 14, y: 13, algorithm: "DFS", color: "#ffb8ff", name: "Pinky" },
+            { id: 3, x: 13, y: 14, algorithm: "Dijkstra", color: "#00ffff", name: "Inky" },
+            { id: 4, x: 14, y: 14, algorithm: "A*", color: "#ffb852", name: "Clyde" }
         ],
         data: [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
