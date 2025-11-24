@@ -28,6 +28,18 @@ export class UIController {
         this.ghostCountSlider = document.getElementById("ghostCountSlider");
         this.ghostCountValue = document.getElementById("ghostCountValue");
 
+        this.customMapWidthInput = document.getElementById("customMapWidth");
+        this.customMapHeightInput = document.getElementById("customMapHeight");
+        this.customPacmanXInput = document.getElementById("customPacmanX");
+        this.customPacmanYInput = document.getElementById("customPacmanY");
+        this.customGhostInputs = [
+            { x: document.getElementById("customGhost1X"), y: document.getElementById("customGhost1Y") },
+            { x: document.getElementById("customGhost2X"), y: document.getElementById("customGhost2Y") },
+            { x: document.getElementById("customGhost3X"), y: document.getElementById("customGhost3Y") },
+            { x: document.getElementById("customGhost4X"), y: document.getElementById("customGhost4Y") }
+        ];
+        this.btnGenerateCustomMap = document.getElementById("btnGenerateCustomMap");
+
         this.benchmarkResultsDiv = document.getElementById("benchmarkResults");
         this.benchmarkContent = document.getElementById("benchmarkContent");
         this.benchmarkProgress = document.getElementById("benchmarkProgress");
@@ -102,6 +114,10 @@ export class UIController {
             this.updatePlayButton(false);
         });
 
+        this.btnGenerateCustomMap?.addEventListener("click", () => {
+            this.handleGenerateCustomMap();
+        });
+
         this.btnBenchmark.addEventListener("click", () => {
             this.handleRunBenchmark();
         });
@@ -162,6 +178,85 @@ export class UIController {
             }
         });
 
+    }
+
+    handleGenerateCustomMap() {
+        const width = parseInt(this.customMapWidthInput?.value, 10);
+        const height = parseInt(this.customMapHeightInput?.value, 10);
+
+        if (!width || !height || width < 5 || height < 5) {
+            alert("Please enter a width and height of at least 5.");
+            return;
+        }
+
+        const mapData = this.generateRandomMapData(width, height);
+        const pacman = this.parseCoordinate(this.customPacmanXInput, this.customPacmanYInput, width, height);
+        const ghosts = this.getCustomGhosts(width, height);
+
+        // Ensure characters spawn on walkable tiles
+        if (mapData[pacman.y] && mapData[pacman.y][pacman.x] === 1) {
+            mapData[pacman.y][pacman.x] = 2;
+        }
+        ghosts.forEach((ghost) => {
+            if (mapData[ghost.y] && mapData[ghost.y][ghost.x] === 1) {
+                mapData[ghost.y][ghost.x] = 2;
+            }
+        });
+
+        const mapDefinition = {
+            id: `builder-${Date.now()}`,
+            name: `Custom ${width}x${height}`,
+            width,
+            height,
+            pacman,
+            ghosts,
+            data: mapData,
+        };
+
+        const [mapKey] = registerCustomMaps([mapDefinition]);
+        if (!mapKey) return;
+
+        this.gameEngine.loadMap(mapKey);
+        this.buildMapButtons();
+        this.setActiveMapButton(mapKey);
+        this.buildGhostControls();
+        this.updateStatsPlaceholder();
+        this.updatePlayButton(false);
+        this.syncGhostCountFromEngine();
+    }
+
+    parseCoordinate(xInput, yInput, width, height) {
+        const x = Math.min(width - 2, Math.max(1, parseInt(xInput?.value, 10) || 1));
+        const y = Math.min(height - 2, Math.max(1, parseInt(yInput?.value, 10) || 1));
+        return { x, y };
+    }
+
+    getCustomGhosts(width, height) {
+        const templates = MAPS.classic?.ghosts ?? [];
+
+        return templates.slice(0, 4).map((ghost, index) => {
+            const inputs = this.customGhostInputs[index];
+            const coords = this.parseCoordinate(inputs?.x, inputs?.y, width, height);
+            return {
+                ...ghost,
+                x: coords.x,
+                y: coords.y,
+            };
+        });
+    }
+
+    generateRandomMapData(width, height) {
+        const wallChance = 0.18;
+
+        return Array.from({ length: height }, (_, y) =>
+            Array.from({ length: width }, (_, x) => {
+                const isBorder = x === 0 || y === 0 || x === width - 1 || y === height - 1;
+                if (isBorder) return 1;
+
+                const isWall = Math.random() < wallChance;
+                return isWall ? 1 : 2; // Pellet everywhere else
+            })
+        );
     }
 
     syncGhostCountFromEngine() {

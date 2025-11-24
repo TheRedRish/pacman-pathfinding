@@ -73,6 +73,56 @@
           </div>
 
           <div class="control-section">
+            <h3>🛠️ Custom Map Builder</h3>
+            <div class="custom-map-grid">
+              <div class="form-field">
+                <label for="customMapWidth">Width</label>
+                <input type="number" id="customMapWidth" min="5" max="50" value="15" />
+              </div>
+              <div class="form-field">
+                <label for="customMapHeight">Height</label>
+                <input type="number" id="customMapHeight" min="5" max="50" value="15" />
+              </div>
+              <div class="form-field coordinate-field">
+                <label>Pac-Man (x, y)</label>
+                <div class="coordinate-pair">
+                  <input type="number" id="customPacmanX" min="1" value="2" />
+                  <input type="number" id="customPacmanY" min="1" value="2" />
+                </div>
+              </div>
+              <div class="form-field coordinate-field">
+                <label>Ghost 1 (x, y)</label>
+                <div class="coordinate-pair">
+                  <input type="number" id="customGhost1X" min="1" value="3" />
+                  <input type="number" id="customGhost1Y" min="1" value="3" />
+                </div>
+              </div>
+              <div class="form-field coordinate-field">
+                <label>Ghost 2 (x, y)</label>
+                <div class="coordinate-pair">
+                  <input type="number" id="customGhost2X" min="1" value="4" />
+                  <input type="number" id="customGhost2Y" min="1" value="4" />
+                </div>
+              </div>
+              <div class="form-field coordinate-field">
+                <label>Ghost 3 (x, y)</label>
+                <div class="coordinate-pair">
+                  <input type="number" id="customGhost3X" min="1" value="5" />
+                  <input type="number" id="customGhost3Y" min="1" value="5" />
+                </div>
+              </div>
+              <div class="form-field coordinate-field">
+                <label>Ghost 4 (x, y)</label>
+                <div class="coordinate-pair">
+                  <input type="number" id="customGhost4X" min="1" value="6" />
+                  <input type="number" id="customGhost4Y" min="1" value="6" />
+                </div>
+              </div>
+              <button class="btn-save" id="btnGenerateCustomMap">🎲 Generate custom map</button>
+            </div>
+          </div>
+
+          <div class="control-section">
             <h3>👻 Ghosts</h3>
             <div id="ghostControls"></div>
           </div>
