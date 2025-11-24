@@ -1,3 +1,4 @@
+// Convert a coordinate into a string key for Sets/Maps (e.g., "3,5")
 const posKey = (p) => `${p.x},${p.y}`;
 
 const parseKey = (k) => {
@@ -5,10 +6,13 @@ const parseKey = (k) => {
     return { x, y };
 };
 
+// Manhattan distance heuristic used by A*
 const manhattan = (a, b) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 
+// Convert Set of position keys back into coordinate objects
 const setToPositions = (set) => Array.from(set).map(parseKey);
 
+// Determine the movement cost for stepping onto a given maze cell
 function getStepCost(pos, maze) {
     const cell = maze[pos.y]?.[pos.x];
 
@@ -18,6 +22,7 @@ function getStepCost(pos, maze) {
     return 1; // Empty path
 }
 
+// Return valid neighboring positions that are inside bounds and not walls
 function getNeighbors(pos, maze, ghosts) {
     const neighbors = [];
     const dirs = [
@@ -44,6 +49,7 @@ function getNeighbors(pos, maze, ghosts) {
     return neighbors;
 }
 
+// Breadth-First Search explores level by level; optimal for unweighted grids
 function bfs(start, goal, maze, ghosts) {
     const startTime = performance.now();
     const visited = new Set();
@@ -92,6 +98,7 @@ function bfs(start, goal, maze, ghosts) {
     };
 }
 
+// Depth-First Search explores paths deeply before backtracking; not weight-aware
 function dfs(start, goal, maze, ghosts) {
     const startTime = performance.now();
     const visited = new Set();
@@ -133,6 +140,7 @@ function dfs(start, goal, maze, ghosts) {
     };
 }
 
+// Dijkstra's algorithm finds the lowest-cost path respecting weighted steps
 function dijkstra(start, goal, maze, ghosts) {
     const startTime = performance.now();
     const visited = new Set();
@@ -198,6 +206,7 @@ function dijkstra(start, goal, maze, ghosts) {
     };
 }
 
+// A* search combines path cost with heuristic distance for faster convergence
 function astar(start, goal, maze, ghosts) {
     const startTime = performance.now();
     const visited = new Set();
@@ -244,7 +253,7 @@ function astar(start, goal, maze, ghosts) {
 
         for (const neighbor of getNeighbors(pos, maze, ghosts)) {
             const nKey = posKey(neighbor);
-            const tentativeG = g + 1;
+            const tentativeG = g + getStepCost(neighbor, maze);
 
             if (!gScore.has(nKey) || tentativeG < gScore.get(nKey)) {
                 gScore.set(nKey, tentativeG);
