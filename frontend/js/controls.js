@@ -681,12 +681,15 @@ export class UIController {
     runBenchmarkViaWorker(mapName, options = { trials: 10, maxTicks: 500 }) {
         this.ensureBenchmarkWorker();
 
+        const mapDefinition = MAPS[mapName];
+
         return new Promise((resolve, reject) => {
             this.benchmarkResolve = resolve;
             this.benchmarkReject = reject;
 
             this.benchmarkWorker.postMessage({
                 mapName,
+                mapDefinition,
                 options,
             });
         });

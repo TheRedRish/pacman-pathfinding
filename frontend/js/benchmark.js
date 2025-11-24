@@ -133,10 +133,11 @@ export async function runBenchmark(
         ghostCount,
         ghostStartDelay = 10,
         ghostAlgorithms = [],
+        mapDefinition = null,
     } = {},
     onProgress = () => { }
 ) {
-    const map = MAPS[mapName];
+    const map = MAPS[mapName] || mapDefinition;
     if (!map) throw new Error(`Unknown map: ${mapName}`);
 
     const desiredCount = clampGhostCount(map, ghostCount || map.ghosts?.length || 1);

@@ -1,12 +1,12 @@
 import { runBenchmark } from "./benchmark.js";
 
 self.onmessage = async (event) => {
-    const { mapName, options } = event.data;
+    const { mapName, options, mapDefinition } = event.data;
 
     try {
         const results = await runBenchmark(
             mapName,
-            options,
+            { ...options, mapDefinition },
             (progress) => {
                 self.postMessage({ type: "progress", progress });
             }
