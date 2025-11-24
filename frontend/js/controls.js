@@ -38,6 +38,7 @@ export class UIController {
 
         this.lastBenchmarkResults = null;
         this.lastBenchmarkMap = null;
+        this.lastBenchmarkConfig = null;
         this.benchmarkWorker = null;
         this.benchmarkResolve = null;
         this.benchmarkReject = null;
@@ -334,16 +335,19 @@ export class UIController {
         this.toggleBenchmarkProgress(true);
 
         try {
-            const results = await this.runBenchmarkViaWorker(mapName, {
+            const options = {
                 trials,
                 maxTicks: 500,
                 pacmanRandomness: this.gameEngine.getPacmanRandomness(),
                 ghostCount: this.gameEngine.getGhostCount(),
                 ghostStartDelay: this.gameEngine.getGhostStartDelay(),
                 ghostAlgorithms: activeGhosts.map((ghost) => ghost.algorithm),
-            });
+            };
+
+            const results = await this.runBenchmarkViaWorker(mapName, options);
             if (results) {
                 this.lastBenchmarkResults = results;
+                this.lastBenchmarkConfig = { mapName, ...options };
                 this.displayBenchmarkResults(results);
                 this.btnSaveBenchmark.disabled = false;
             }
@@ -480,11 +484,13 @@ export class UIController {
         const mapName = results?.[0]?.mapName ?? this.lastBenchmarkMap;
         const mapLabel = mapName ? MAPS[mapName]?.name ?? mapName : "Unknown map";
         const algorithms = results.map((result) => result.algorithm).join(", ");
+        const pacmanRandomness = this.lastBenchmarkConfig?.pacmanRandomness;
 
         let html = `<div class="benchmark-summary">
             <div><strong>Map:</strong> ${mapLabel}</div>
             <div><strong>Trials per algorithm:</strong> ${trials}</div>
             <div><strong>Algorithms:</strong> ${algorithms || "None"}</div>
+            ${typeof pacmanRandomness === "number" ? `<div><strong>Pac-Man randomness:</strong> ${(pacmanRandomness * 100).toFixed(0)}%</div>` : ""}
         </div>`;
 
         html += '<table class="benchmark-table"><thead><tr>';
@@ -524,7 +530,11 @@ export class UIController {
 
         try {
             this.btnSaveBenchmark.disabled = true;
-            await saveBenchmarkResults(mapName, this.lastBenchmarkResults);
+            await saveBenchmarkResults(
+                mapName,
+                this.lastBenchmarkResults,
+                this.lastBenchmarkConfig?.pacmanRandomness ?? this.gameEngine.getPacmanRandomness(),
+            );
             alert("Benchmark results saved successfully!");
         } catch (err) {
             console.error(err);

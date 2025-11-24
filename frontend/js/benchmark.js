@@ -262,11 +262,12 @@ export async function runBenchmark(
     return results;
 }
 
-export async function saveBenchmarkResults(mapName, results) {
+export async function saveBenchmarkResults(mapName, results, pacmanRandomness) {
     const payload = {
         mapName,
         results,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        pacmanRandomness
     };
 
     const response = await fetch(`${API_URL}/api/benchmarks`, {
