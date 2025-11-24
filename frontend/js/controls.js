@@ -245,13 +245,17 @@ export class UIController {
             Array.from({ length: width }, (_, x) => (x === 0 || y === 0 || x === width - 1 || y === height - 1 ? 1 : 1)),
         );
 
+        const shuffleDirections = (dirs) => dirs.sort(() => Math.random() - 0.5);
+
         const carve = (cx, cy) => {
             const directions = [
                 [0, -2],
                 [0, 2],
                 [-2, 0],
                 [2, 0],
-            ].sort(() => Math.random() - 0.5);
+            ];
+
+            shuffleDirections(directions);
 
             directions.forEach(([dx, dy]) => {
                 const nx = cx + dx;
@@ -271,7 +275,7 @@ export class UIController {
         carve(1, 1);
 
         // Add a few random loops to reduce dead-ends and create a better labyrinth
-        const extraPassages = Math.floor((width * height) / 20);
+        const extraPassages = Math.floor((width * height) / 30);
         for (let i = 0; i < extraPassages; i++) {
             const x = 2 + Math.floor(Math.random() * Math.max(1, width - 4));
             const y = 2 + Math.floor(Math.random() * Math.max(1, height - 4));
@@ -279,6 +283,47 @@ export class UIController {
                 grid[y][x] = 0;
             }
         }
+
+        const neighbors = [
+            [1, 0],
+            [-1, 0],
+            [0, 1],
+            [0, -1],
+        ];
+
+        const connectDeadEnds = () => {
+            const deadEnds = [];
+
+            for (let y = 1; y < height - 1; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    if (grid[y][x] !== 0) continue;
+
+                    const openCount = neighbors.reduce((count, [dx, dy]) => {
+                        return count + (grid[y + dy]?.[x + dx] === 0 ? 1 : 0);
+                    }, 0);
+
+                    if (openCount === 1) {
+                        deadEnds.push({ x, y });
+                    }
+                }
+            }
+
+            shuffleDirections(deadEnds);
+
+            deadEnds.forEach(({ x, y }) => {
+                const options = neighbors
+                    .filter(([dx, dy]) => grid[y + dy]?.[x + dx] === 1 && grid[y + dy * 2]?.[x + dx * 2] === 0)
+                    .sort(() => Math.random() - 0.5);
+
+                const choice = options[0];
+                if (!choice) return;
+
+                const [dx, dy] = choice;
+                grid[y + dy][x + dx] = 0;
+            });
+        };
+
+        connectDeadEnds();
 
         return grid.map((row) => row.map((cell) => (cell === 1 ? 1 : 2)));
     }
