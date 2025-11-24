@@ -557,6 +557,16 @@ select {
     border-radius: 8px;
 }
 
+.benchmark-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 12px;
+}
+
+.benchmark-detail-header {
+    margin-bottom: 8px;
+}
+
 .comparison-table {
     width: 100%;
     border-collapse: collapse;

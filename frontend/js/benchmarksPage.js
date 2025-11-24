@@ -135,13 +135,17 @@ function renderComparison(selected) {
     const summarySection = document.createElement("div");
     summarySection.className = "comparison-section";
     summarySection.innerHTML = `
-        <h4>Algorithm averages</h4>
-        <p class="about-text">Aggregated across the selected benchmarks for each algorithm.</p>
+        <h4>Algorithm comparison</h4>
+        <p class="about-text">Side-by-side metrics for each algorithm from every selected run.</p>
     `;
     summarySection.appendChild(renderAlgorithmSummary(selected));
 
     const detailSection = document.createElement("div");
     detailSection.className = "comparison-section";
+    detailSection.innerHTML = `
+        <h4>Benchmark details</h4>
+        <p class="about-text">Per-benchmark breakdowns to see each run in context.</p>
+    `;
     detailSection.appendChild(renderBenchmarkDetailTable(selected));
 
     comparisonWrap.appendChild(summarySection);
@@ -152,100 +156,23 @@ function renderComparison(selected) {
 }
 
 function renderAlgorithmSummary(selected) {
-    const algorithmAggregates = new Map();
-
-    selected.forEach((benchmark) => {
-        benchmark.results?.forEach((result) => {
-            if (!algorithmAggregates.has(result.algorithm)) {
-                algorithmAggregates.set(result.algorithm, {
-                    count: 0,
-                    totalTime: 0,
-                    totalNodes: 0,
-                    totalTicks: 0,
-                    totalCatchRate: 0,
-                });
-            }
-
-            const entry = algorithmAggregates.get(result.algorithm);
-            entry.count += 1;
-            entry.totalTime += result.avgTimeMs;
-            entry.totalNodes += result.avgNodesVisited;
-            entry.totalTicks += result.avgTicksToCatch;
-            entry.totalCatchRate += result.catchRate;
-        });
-    });
+    const algorithmNames = new Set();
+    selected.forEach((b) => b.results?.forEach((r) => algorithmNames.add(r.algorithm)));
 
     const table = document.createElement("table");
     table.className = "comparison-table compact";
 
     const thead = document.createElement("thead");
-    thead.innerHTML = `
-        <tr>
-            <th>Algorithm</th>
-            <th>Runs</th>
-            <th>Avg Time</th>
-            <th>Avg Nodes</th>
-            <th>Avg Ticks</th>
-            <th>Avg Catch</th>
-        </tr>
-    `;
+    const headRow = document.createElement("tr");
+    headRow.innerHTML = `<th>Algorithm</th>${selected.map((b) => `<th>${benchmarkLabel(b)}</th>`).join("")}`;
+    thead.appendChild(headRow);
     table.appendChild(thead);
 
     const tbody = document.createElement("tbody");
 
-    Array.from(algorithmAggregates.entries())
-        .sort((a, b) => a[0].localeCompare(b[0]))
-        .forEach(([algorithm, agg]) => {
-            const row = document.createElement("tr");
-
-            const avgTime = agg.totalTime / agg.count;
-            const avgNodes = agg.totalNodes / agg.count;
-            const avgTicks = agg.totalTicks / agg.count;
-            const avgCatch = (agg.totalCatchRate / agg.count) * 100;
-
-            row.innerHTML = `
-                <td>${algorithm}</td>
-                <td>${agg.count}</td>
-                <td>${avgTime.toFixed(3)} ms</td>
-                <td>${avgNodes.toFixed(1)}</td>
-                <td>${avgTicks.toFixed(1)}</td>
-                <td>${avgCatch.toFixed(0)}%</td>
-            `;
-
-            tbody.appendChild(row);
-        });
-
-    if (!tbody.children.length) {
-        const empty = document.createElement("tr");
-        empty.innerHTML = '<td colspan="6"><em>No algorithm results available in the selection.</em></td>';
-        tbody.appendChild(empty);
-    }
-
-    table.appendChild(tbody);
-    return table;
-}
-
-function renderBenchmarkDetailTable(selected) {
-    const algorithmNames = new Set();
-    selected.forEach((b) => b.results?.forEach((r) => algorithmNames.add(r.algorithm)));
-
-    const container = document.createElement("div");
-    const header = document.createElement("div");
-    header.className = "about-text";
-    header.textContent = "Metrics per algorithm per benchmark";
-
-    const table = document.createElement("table");
-    table.className = "comparison-table";
-
-    const thead = document.createElement("thead");
-    const headRow = document.createElement("tr");
-    headRow.innerHTML = `<th>Algorithm</th>${selected
-        .map((b) => `<th>${benchmarkLabel(b)}</th>`)
-        .join("")}`;
-    thead.appendChild(headRow);
-
-    const tbody = document.createElement("tbody");
-    algorithmNames.forEach((algo) => {
+    Array.from(algorithmNames)
+        .sort((a, b) => a.localeCompare(b))
+        .forEach((algo) => {
         const row = document.createElement("tr");
         const algoCell = document.createElement("td");
         algoCell.textContent = algo;
@@ -270,11 +197,75 @@ function renderBenchmarkDetailTable(selected) {
         tbody.appendChild(row);
     });
 
-    table.appendChild(thead);
-    table.appendChild(tbody);
+    if (!tbody.children.length) {
+        const empty = document.createElement("tr");
+        empty.innerHTML = `<td colspan="${selected.length + 1}"><em>No algorithm results available in the selection.</em></td>`;
+        tbody.appendChild(empty);
+    }
 
-    container.appendChild(header);
-    container.appendChild(table);
+    table.appendChild(tbody);
+    return table;
+}
+
+function renderBenchmarkDetailTable(selected) {
+    const container = document.createElement("div");
+    container.className = "benchmark-detail-grid";
+
+    selected.forEach((benchmark) => {
+        const card = document.createElement("div");
+        card.className = "comparison-card benchmark-detail-card";
+
+        const header = document.createElement("div");
+        header.className = "benchmark-detail-header";
+        header.innerHTML = `
+            <div>
+                <div class="benchmark-note">${benchmarkLabel(benchmark)}</div>
+                <div class="about-text">${formatMapName(benchmark.mapName)} • ${Math.round((benchmark.pacmanRandomness ?? 0) * 100)}% randomness</div>
+                <div class="about-text">${formatTimestamp(benchmark.timestamp)}</div>
+            </div>
+        `;
+
+        const resultsTable = document.createElement("table");
+        resultsTable.className = "comparison-table compact";
+
+        const thead = document.createElement("thead");
+        thead.innerHTML = `
+            <tr>
+                <th>Algorithm</th>
+                <th>Avg Time</th>
+                <th>Avg Nodes</th>
+                <th>Avg Ticks</th>
+                <th>Catch</th>
+            </tr>
+        `;
+        resultsTable.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+        if (benchmark.results?.length) {
+            benchmark.results.forEach((result) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${result.algorithm}</td>
+                    <td>${result.avgTimeMs.toFixed(3)} ms</td>
+                    <td>${result.avgNodesVisited.toFixed(1)}</td>
+                    <td>${result.avgTicksToCatch.toFixed(1)}</td>
+                    <td>${(result.catchRate * 100).toFixed(0)}%</td>
+                `;
+                tbody.appendChild(row);
+            });
+        } else {
+            const empty = document.createElement("tr");
+            empty.innerHTML = '<td colspan="5"><em>No results recorded for this benchmark.</em></td>';
+            tbody.appendChild(empty);
+        }
+
+        resultsTable.appendChild(tbody);
+
+        card.appendChild(header);
+        card.appendChild(resultsTable);
+
+        container.appendChild(card);
+    });
 
     return container;
 }
