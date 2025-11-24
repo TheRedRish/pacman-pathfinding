@@ -33,6 +33,23 @@ export async function fetchBenchmarkStats() {
     return response.json();
 }
 
+export async function fetchBenchmarks({ mapName, limit } = {}) {
+    const params = new URLSearchParams();
+
+    if (mapName) params.set("mapName", mapName);
+    if (limit) params.set("limit", limit);
+
+    const query = params.toString();
+    const url = query ? `${API_URL}/api/benchmarks?${query}` : `${API_URL}/api/benchmarks`;
+
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error("Failed to load benchmarks");
+    }
+
+    return response.json();
+}
+
 export async function fetchSavedMaps() {
     const response = await fetch(`${API_URL}/api/maps`);
     if (!response.ok) {

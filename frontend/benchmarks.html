@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Benchmark Explorer | Pac-Man Pathfinding</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Benchmark Explorer</h1>
+        <p class="subtitle">Review, filter, and compare saved benchmarks</p>
+        <nav class="nav-links">
+          <a href="/">Simulator</a>
+          <a href="/benchmarks" aria-current="page">Benchmark explorer</a>
+        </nav>
+      </header>
+
+      <div class="page-card">
+        <h3>Filters</h3>
+        <div class="filter-grid">
+          <div class="form-field">
+            <label for="mapFilter">Map</label>
+            <select id="mapFilter"></select>
+          </div>
+          <div class="form-field">
+            <label for="limitInput">Records to load</label>
+            <input id="limitInput" type="number" min="10" max="500" value="100" />
+          </div>
+          <div class="form-field" style="align-self: flex-end">
+            <button id="refreshButton" class="btn-benchmark">Reload</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-card">
+        <div class="benchmark-controls" style="margin-bottom: 0">
+          <h3>Saved Benchmarks</h3>
+          <div class="tag" id="statusTag">Loading...</div>
+        </div>
+        <div id="tableWrapper" class="table-wrapper">
+          <table class="benchmarks-table">
+            <thead>
+              <tr>
+                <th>Select</th>
+                <th>Note</th>
+                <th>Map</th>
+                <th>Randomness</th>
+                <th>Timestamp</th>
+                <th>Algorithms</th>
+              </tr>
+            </thead>
+            <tbody id="benchmarkTableBody">
+              <tr><td colspan="6">Loading benchmarks...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="page-card">
+        <h3>Comparison</h3>
+        <p class="about-text" id="comparisonIntro">
+          Select two or more benchmarks to compare their results side by side.
+        </p>
+        <div id="selectedBenchmarks" class="comparison-grid"></div>
+        <div id="comparisonContainer" class="comparison-panel"></div>
+      </div>
+    </div>
+
+    <script type="module" src="js/benchmarksPage.js"></script>
+  </body>
+</html>

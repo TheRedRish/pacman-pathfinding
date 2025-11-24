@@ -11,6 +11,10 @@
       <header>
         <h1>PAC-MAN PATHFINDING</h1>
         <p class="subtitle">Algorithm Comparison: BFS • DFS • Dijkstra • A*</p>
+        <nav class="nav-links">
+          <a href="/">Simulator</a>
+          <a href="/benchmarks">Benchmark explorer</a>
+        </nav>
       </header>
 
       <div class="main-grid">
@@ -87,6 +91,15 @@
               max="200"
               step="1"
               value="10"
+            />
+          </div>
+          <div class="form-field">
+            <label for="benchmarkNote">Benchmark note</label>
+            <input
+              type="text"
+              id="benchmarkNote"
+              maxlength="200"
+              placeholder="e.g. Dijkstra without weighted search"
             />
           </div>
           <div class="form-field" style="align-self: flex-end">
