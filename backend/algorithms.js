@@ -60,6 +60,15 @@ function setToPositions(set) {
     return Array.from(set).map(parseKey);
 }
 
+function getStepCost(pos, state) {
+    const cell = state.grid?.[pos.y]?.[pos.x];
+
+    if (cell === 'pellet' || cell === 2) return 0.5;
+    if (cell === 'power-pellet' || cell === 3) return 0.25;
+
+    return 1;
+}
+
 /**
  * BFS - Breadth-First Search
  * Explores all neighbors at current depth before moving deeper
@@ -222,7 +231,7 @@ function dijkstra(start, goal, state) {
         // Explore neighbors
         for (const neighbor of getNeighbors(pos, state)) {
             const nKey = posKey(neighbor);
-            const newCost = cost + 1; // Uniform cost
+            const newCost = cost + getStepCost(neighbor, state);
 
             if (!dist.has(nKey) || newCost < dist.get(nKey)) {
                 dist.set(nKey, newCost);

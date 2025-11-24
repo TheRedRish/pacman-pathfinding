@@ -9,6 +9,15 @@ const manhattan = (a, b) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 
 const setToPositions = (set) => Array.from(set).map(parseKey);
 
+function getStepCost(pos, maze) {
+    const cell = maze[pos.y]?.[pos.x];
+
+    if (cell === 2) return 0.5; // Regular pellet
+    if (cell === 3) return 0.25; // Power pellet
+
+    return 1; // Empty path
+}
+
 function getNeighbors(pos, maze, ghosts) {
     const neighbors = [];
     const dirs = [
@@ -168,7 +177,7 @@ function dijkstra(start, goal, maze, ghosts) {
 
         for (const neighbor of getNeighbors(pos, maze, ghosts)) {
             const nKey = posKey(neighbor);
-            const newCost = g + 1;
+            const newCost = g + getStepCost(neighbor, maze);
 
             if (!dist.has(nKey) || newCost < dist.get(nKey)) {
                 dist.set(nKey, newCost);
