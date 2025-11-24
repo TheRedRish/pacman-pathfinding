@@ -130,9 +130,9 @@ function renderComparison(selected) {
     }
 
     const comparisonWrap = document.createElement("div");
-    comparisonWrap.className = "comparison-columns";
+    comparisonWrap.className = "comparison-stack";
 
-    const summarySection = document.createElement("div");
+    const summarySection = document.createElement("section");
     summarySection.className = "comparison-section";
     summarySection.innerHTML = `
         <h4>Algorithm comparison</h4>
@@ -140,7 +140,7 @@ function renderComparison(selected) {
     `;
     summarySection.appendChild(renderAlgorithmSummary(selected));
 
-    const detailSection = document.createElement("div");
+    const detailSection = document.createElement("section");
     detailSection.className = "comparison-section";
     detailSection.innerHTML = `
         <h4>Benchmark details</h4>

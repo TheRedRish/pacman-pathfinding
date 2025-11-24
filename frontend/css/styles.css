@@ -533,11 +533,17 @@ select {
     margin-top: 10px;
 }
 
-.comparison-columns {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+.comparison-stack {
+    display: flex;
+    flex-direction: column;
     gap: 16px;
-    align-items: start;
+}
+
+.comparison-section {
+    background: #11182b;
+    border: 1px solid #2a2f47;
+    padding: 16px;
+    border-radius: 8px;
 }
 
 .comparison-section h4 {
