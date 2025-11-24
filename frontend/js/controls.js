@@ -1,6 +1,6 @@
 import { MAPS, registerCustomMaps } from "./maps.js";
 import { saveBenchmarkResults } from "./benchmark.js";
-import { fetchBackendHealth, fetchBenchmarkStats, fetchSavedMaps } from "./api.js";
+import { fetchBackendHealth, fetchBenchmarkStats, fetchSavedMaps, saveCustomMap } from "./api.js";
 
 export class UIController {
     constructor(gameEngine) {
@@ -27,6 +27,26 @@ export class UIController {
 
         this.ghostCountSlider = document.getElementById("ghostCountSlider");
         this.ghostCountValue = document.getElementById("ghostCountValue");
+
+        this.customMapNameInput = document.getElementById("customMapName");
+        this.customMapWidthInput = document.getElementById("customMapWidth");
+        this.customMapHeightInput = document.getElementById("customMapHeight");
+        this.customPacmanXInput = document.getElementById("customPacmanX");
+        this.customPacmanYInput = document.getElementById("customPacmanY");
+        this.customGhostInputs = [
+            { x: document.getElementById("customGhost1X"), y: document.getElementById("customGhost1Y") },
+            { x: document.getElementById("customGhost2X"), y: document.getElementById("customGhost2Y") },
+            { x: document.getElementById("customGhost3X"), y: document.getElementById("customGhost3Y") },
+            { x: document.getElementById("customGhost4X"), y: document.getElementById("customGhost4Y") }
+        ];
+        this.btnGenerateCustomMap = document.getElementById("btnGenerateCustomMap");
+        this.btnApplySpawns = document.getElementById("btnApplySpawns");
+        this.btnSaveCustomMap = document.getElementById("btnSaveCustomMap");
+
+        this.lastCustomLayout = null;
+        this.lastCustomDimensions = null;
+        this.lastCustomMapId = null;
+        this.lastCustomMapKey = null;
 
         this.benchmarkResultsDiv = document.getElementById("benchmarkResults");
         this.benchmarkContent = document.getElementById("benchmarkContent");
@@ -102,6 +122,18 @@ export class UIController {
             this.updatePlayButton(false);
         });
 
+        this.btnGenerateCustomMap?.addEventListener("click", () => {
+            this.handleGenerateCustomMap();
+        });
+
+        this.btnApplySpawns?.addEventListener("click", () => {
+            this.applyCustomSpawns();
+        });
+
+        this.btnSaveCustomMap?.addEventListener("click", () => {
+            this.handleSaveCustomMap();
+        });
+
         this.btnBenchmark.addEventListener("click", () => {
             this.handleRunBenchmark();
         });
@@ -162,6 +194,254 @@ export class UIController {
             }
         });
 
+    }
+
+    handleGenerateCustomMap() {
+        const width = parseInt(this.customMapWidthInput?.value, 10);
+        const height = parseInt(this.customMapHeightInput?.value, 10);
+
+        if (!width || !height || width < 5 || height < 5) {
+            alert("Please enter a width and height of at least 5.");
+            return;
+        }
+        this.lastCustomLayout = this.generateLabyrinthMapData(width, height);
+        this.lastCustomDimensions = { width, height };
+        this.lastCustomMapId = this.lastCustomMapId || `builder-${Date.now()}`;
+
+        const defaultName = this.customMapNameInput?.value?.trim()
+            || `Custom ${width}x${height} Labyrinth`;
+        if (this.customMapNameInput) {
+            this.customMapNameInput.value = defaultName;
+        }
+
+        this.applyCustomSpawns();
+    }
+
+    parseCoordinate(xInput, yInput, width, height) {
+        const x = Math.min(width - 2, Math.max(1, parseInt(xInput?.value, 10) || 1));
+        const y = Math.min(height - 2, Math.max(1, parseInt(yInput?.value, 10) || 1));
+        return { x, y };
+    }
+
+    getCustomGhosts(width, height, mapData) {
+        const templates = MAPS.classic?.ghosts ?? [];
+
+        return templates.slice(0, 4).map((ghost, index) => {
+            const inputs = this.customGhostInputs[index];
+            const coords = this.ensureWalkableCoordinate(
+                this.parseCoordinate(inputs?.x, inputs?.y, width, height),
+                mapData,
+            );
+            return {
+                ...ghost,
+                x: coords.x,
+                y: coords.y,
+            };
+        });
+    }
+
+    generateLabyrinthMapData(width, height) {
+        const grid = Array.from({ length: height }, (_, y) =>
+            Array.from({ length: width }, (_, x) => (x === 0 || y === 0 || x === width - 1 || y === height - 1 ? 1 : 1)),
+        );
+
+        const shuffleDirections = (dirs) => dirs.sort(() => Math.random() - 0.5);
+
+        const carve = (cx, cy) => {
+            const directions = [
+                [0, -2],
+                [0, 2],
+                [-2, 0],
+                [2, 0],
+            ];
+
+            shuffleDirections(directions);
+
+            directions.forEach(([dx, dy]) => {
+                const nx = cx + dx;
+                const ny = cy + dy;
+
+                if (nx <= 0 || ny <= 0 || nx >= width - 1 || ny >= height - 1) return;
+                if (grid[ny][nx] !== 1) return;
+
+                grid[cy + dy / 2][cx + dx / 2] = 0;
+                grid[ny][nx] = 0;
+                carve(nx, ny);
+            });
+        };
+
+        // Start carving from the top-left interior cell
+        grid[1][1] = 0;
+        carve(1, 1);
+
+        // Add a few random loops to reduce dead-ends and create a better labyrinth
+        const extraPassages = Math.floor((width * height) / 30);
+        for (let i = 0; i < extraPassages; i++) {
+            const x = 2 + Math.floor(Math.random() * Math.max(1, width - 4));
+            const y = 2 + Math.floor(Math.random() * Math.max(1, height - 4));
+            if (grid[y][x] === 1) {
+                grid[y][x] = 0;
+            }
+        }
+
+        const neighbors = [
+            [1, 0],
+            [-1, 0],
+            [0, 1],
+            [0, -1],
+        ];
+
+        const connectDeadEnds = () => {
+            const deadEnds = [];
+
+            for (let y = 1; y < height - 1; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    if (grid[y][x] !== 0) continue;
+
+                    const openCount = neighbors.reduce((count, [dx, dy]) => {
+                        return count + (grid[y + dy]?.[x + dx] === 0 ? 1 : 0);
+                    }, 0);
+
+                    if (openCount === 1) {
+                        deadEnds.push({ x, y });
+                    }
+                }
+            }
+
+            shuffleDirections(deadEnds);
+
+            deadEnds.forEach(({ x, y }) => {
+                const options = neighbors
+                    .filter(([dx, dy]) => grid[y + dy]?.[x + dx] === 1 && grid[y + dy * 2]?.[x + dx * 2] === 0)
+                    .sort(() => Math.random() - 0.5);
+
+                const choice = options[0];
+                if (!choice) return;
+
+                const [dx, dy] = choice;
+                grid[y + dy][x + dx] = 0;
+            });
+        };
+
+        connectDeadEnds();
+
+        return grid.map((row) => row.map((cell) => (cell === 1 ? 1 : 2)));
+    }
+
+    cloneMapData(data) {
+        return data.map((row) => [...row]);
+    }
+
+    ensureWalkableCoordinate(coord, mapData) {
+        if (!mapData?.length) return coord;
+
+        const height = mapData.length;
+        const width = mapData[0].length;
+
+        if (mapData[coord.y]?.[coord.x] !== 1) return coord;
+
+        const directions = [
+            [1, 0],
+            [-1, 0],
+            [0, 1],
+            [0, -1],
+        ];
+
+        const queue = [[coord.x, coord.y, 0]];
+        const visited = new Set([`${coord.x},${coord.y}`]);
+
+        while (queue.length) {
+            const [x, y, dist] = queue.shift();
+            if (mapData[y]?.[x] !== 1) {
+                return { x, y };
+            }
+
+            if (dist > Math.max(width, height)) break;
+
+            directions.forEach(([dx, dy]) => {
+                const nx = x + dx;
+                const ny = y + dy;
+                const key = `${nx},${ny}`;
+                if (nx <= 0 || ny <= 0 || nx >= width - 1 || ny >= height - 1) return;
+                if (visited.has(key)) return;
+                visited.add(key);
+                queue.push([nx, ny, dist + 1]);
+            });
+        }
+
+        return coord;
+    }
+
+    buildCustomMapDefinition() {
+        if (!this.lastCustomLayout || !this.lastCustomDimensions) {
+            alert("Generate a labyrinth first.");
+            return null;
+        }
+
+        const { width, height } = this.lastCustomDimensions;
+        const mapData = this.cloneMapData(this.lastCustomLayout);
+
+        const pacman = this.ensureWalkableCoordinate(
+            this.parseCoordinate(this.customPacmanXInput, this.customPacmanYInput, width, height),
+            mapData,
+        );
+        const ghosts = this.getCustomGhosts(width, height, mapData);
+
+        if (mapData[pacman.y]?.[pacman.x] === 1) mapData[pacman.y][pacman.x] = 2;
+        ghosts.forEach((ghost) => {
+            if (mapData[ghost.y]?.[ghost.x] === 1) mapData[ghost.y][ghost.x] = 2;
+        });
+
+        const name = this.customMapNameInput?.value?.trim() || `Custom ${width}x${height} Labyrinth`;
+
+        return {
+            id: this.lastCustomMapId || `builder-${Date.now()}`,
+            name,
+            width,
+            height,
+            pacman,
+            ghosts,
+            data: mapData,
+        };
+    }
+
+    applyCustomSpawns() {
+        const mapDefinition = this.buildCustomMapDefinition();
+        if (!mapDefinition) return null;
+
+        const [mapKey] = registerCustomMaps([mapDefinition]);
+        if (!mapKey) return null;
+
+        this.lastCustomMapId = mapDefinition.id;
+        this.lastCustomMapKey = mapKey;
+
+        this.gameEngine.loadMap(mapKey);
+        this.buildMapButtons();
+        this.setActiveMapButton(mapKey);
+        this.buildGhostControls();
+        this.updateStatsPlaceholder();
+        this.updatePlayButton(false);
+        this.syncGhostCountFromEngine();
+
+        return mapDefinition;
+    }
+
+    async handleSaveCustomMap() {
+        const mapDefinition = this.applyCustomSpawns();
+        if (!mapDefinition) return;
+
+        try {
+            this.btnSaveCustomMap.disabled = true;
+            const response = await saveCustomMap(mapDefinition);
+            if (response?.id) {
+                alert("Map saved successfully!");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Failed to save map. Please try again.");
+        } finally {
+            this.btnSaveCustomMap.disabled = false;
+        }
     }
 
     syncGhostCountFromEngine() {

@@ -387,6 +387,30 @@ select {
     color: #fff;
 }
 
+.custom-map-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    align-items: end;
+}
+
+.coordinate-field {
+    grid-column: span 2;
+}
+
+.coordinate-pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(60px, 1fr));
+    gap: 8px;
+}
+
+.builder-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    grid-column: span 2;
+}
+
 .checkbox-grid {
     display: flex;
     flex-wrap: wrap;
