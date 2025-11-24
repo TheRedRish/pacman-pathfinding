@@ -49,6 +49,8 @@ export const MAPS = {
 };
 
 export function registerCustomMaps(customMaps = []) {
+    const registeredKeys = [];
+
     customMaps.forEach((map) => {
         if (!map?.name || !Array.isArray(map.data)) return;
 
@@ -61,5 +63,9 @@ export function registerCustomMaps(customMaps = []) {
             ghosts: map.ghosts,
             data: map.data
         };
+
+        registeredKeys.push(key);
     });
+
+    return registeredKeys;
 }

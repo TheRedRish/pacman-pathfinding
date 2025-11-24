@@ -57,3 +57,19 @@ export async function fetchSavedMaps() {
     }
     return response.json();
 }
+
+export async function saveCustomMap(mapDefinition) {
+    const response = await fetch(`${API_URL}/api/maps`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(mapDefinition),
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to save map");
+    }
+
+    return response.json();
+}
