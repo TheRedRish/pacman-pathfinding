@@ -258,5 +258,43 @@
     "pacmanRandomness": 0.2,
     "note": "A* Test",
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1763994732685",
+    "mapName": "custom-1763988435347",
+    "results": [
+      {
+        "algorithm": "Dijkstra",
+        "avgTimeMs": 0.3859143455154643,
+        "avgNodesVisited": 398.0460179222593,
+        "avgTicksToCatch": 113.112,
+        "catchRate": 1,
+        "trials": 1000,
+        "mapName": "custom-1763988435347"
+      }
+    ],
+    "timestamp": "2025-11-24T14:32:12.676Z",
+    "pacmanRandomness": 0.2,
+    "note": "Dijkstra Test - No weight",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1763995043558",
+    "mapName": "custom-1763988435347",
+    "results": [
+      {
+        "algorithm": "A*",
+        "avgTimeMs": 0.16218837097018518,
+        "avgNodesVisited": 151.07675318027566,
+        "avgTicksToCatch": 115.494,
+        "catchRate": 1,
+        "trials": 1000,
+        "mapName": "custom-1763988435347"
+      }
+    ],
+    "timestamp": "2025-11-24T14:37:23.545Z",
+    "pacmanRandomness": 0.2,
+    "note": "A* Test - No weight",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
   }
 ]
