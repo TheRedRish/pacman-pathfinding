@@ -34,6 +34,28 @@ h1 {
     font-size: 1.1em;
 }
 
+.nav-links {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.nav-links a {
+    color: #00ccff;
+    text-decoration: none;
+    padding: 6px 12px;
+    border: 1px solid #00ccff;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    background: rgba(0, 204, 255, 0.1);
+}
+
+.nav-links a:hover {
+    background: rgba(0, 204, 255, 0.25);
+    box-shadow: 0 0 12px rgba(0, 204, 255, 0.5);
+}
+
 .main-grid {
     display: grid;
     grid-template-columns: 1fr 350px;
@@ -453,6 +475,97 @@ select {
     background: #555;
     border-color: #ffff00;
     color: #ffff00;
+}
+
+.page-card {
+    background: #1a1a2e;
+    border: 2px solid #0000ff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.benchmarks-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.benchmarks-table th,
+.benchmarks-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #333;
+}
+
+.benchmarks-table th {
+    color: #ffff00;
+    background: #222;
+}
+
+.benchmarks-table tr:hover {
+    background: #222;
+}
+
+.benchmark-note {
+    color: #00ff88;
+    font-weight: 600;
+}
+
+.tag {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    background: rgba(0, 204, 255, 0.12);
+    border: 1px solid #00ccff;
+    color: #00ccff;
+    font-size: 0.9em;
+}
+
+.comparison-panel {
+    margin-top: 10px;
+}
+
+.comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.comparison-card {
+    background: #11182b;
+    border: 1px solid #2a2f47;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+}
+
+.comparison-table th,
+.comparison-table td {
+    padding: 8px;
+    border-bottom: 1px solid #2a2f47;
+}
+
+.pill {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .about-text {

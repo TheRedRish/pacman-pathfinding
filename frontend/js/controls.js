@@ -17,6 +17,7 @@ export class UIController {
         this.btnSaveBenchmark = document.getElementById("btnSaveBenchmark");
 
         this.benchmarkTrialsInput = document.getElementById("benchmarkTrials");
+        this.benchmarkNoteInput = document.getElementById("benchmarkNote");
 
         this.speedSlider = document.getElementById("speedSlider");
         this.speedValue = document.getElementById("speedValue");
@@ -534,6 +535,7 @@ export class UIController {
                 mapName,
                 this.lastBenchmarkResults,
                 this.lastBenchmarkConfig?.pacmanRandomness ?? this.gameEngine.getPacmanRandomness(),
+                this.benchmarkNoteInput?.value || "",
             );
             alert("Benchmark results saved successfully!");
         } catch (err) {

@@ -61,7 +61,7 @@ app.get('/api/health', (req, res) => {
  */
 app.post('/api/benchmarks', async (req, res) => {
     try {
-        const { mapName, results, timestamp, pacmanRandomness } = req.body;
+        const { mapName, results, timestamp, pacmanRandomness, note } = req.body;
 
         if (!mapName || !results || !timestamp || pacmanRandomness === undefined) {
             return res.status(400).json({
@@ -75,6 +75,14 @@ app.post('/api/benchmarks', async (req, res) => {
             });
         }
 
+        if (note !== undefined && typeof note !== 'string') {
+            return res.status(400).json({
+                error: 'note must be a string when provided'
+            });
+        }
+
+        const trimmedNote = typeof note === 'string' ? note.trim().slice(0, 200) : undefined;
+
         // Read existing benchmarks
         const data = await fs.readFile(BENCHMARKS_FILE, 'utf8');
         const benchmarks = JSON.parse(data);
@@ -86,6 +94,7 @@ app.post('/api/benchmarks', async (req, res) => {
             results,
             timestamp,
             pacmanRandomness,
+            note: trimmedNote,
             userAgent: req.headers['user-agent']
         };
 
@@ -125,8 +134,11 @@ app.get('/api/benchmarks', async (req, res) => {
             benchmarks = benchmarks.filter(b => b.mapName === mapName);
         }
 
+        const parsedLimit = parseInt(limit, 10);
+        const safeLimit = Number.isFinite(parsedLimit) ? parsedLimit : 50;
+
         // Limit results
-        benchmarks = benchmarks.slice(-parseInt(limit));
+        benchmarks = benchmarks.slice(-safeLimit);
 
         res.json(benchmarks);
 
@@ -332,11 +344,12 @@ app.get('/api/export/benchmarks', async (req, res) => {
         const benchmarks = JSON.parse(data);
 
         // Generate CSV
-        let csv = 'Timestamp,Map,Pacman Randomness,Algorithm,Avg Time (ms),Avg Nodes,Avg Ticks,Catch Rate\n';
+        let csv = 'Timestamp,Map,Pacman Randomness,Note,Algorithm,Avg Time (ms),Avg Nodes,Avg Ticks,Catch Rate\n';
 
         benchmarks.forEach(benchmark => {
             benchmark.results.forEach(result => {
-                csv += `${benchmark.timestamp},${benchmark.mapName},${benchmark.pacmanRandomness ?? ''},${result.algorithm},`;
+                const note = (benchmark.note || '').replace(/"/g, '""');
+                csv += `${benchmark.timestamp},${benchmark.mapName},${benchmark.pacmanRandomness ?? ''},"${note}",${result.algorithm},`;
                 csv += `${result.avgTimeMs},${result.avgNodesVisited},${result.avgTicksToCatch},${result.catchRate}\n`;
             });
         });
@@ -352,6 +365,14 @@ app.get('/api/export/benchmarks', async (req, res) => {
             details: error.message
         });
     }
+});
+
+/**
+ * GET /benchmarks
+ * Serve benchmark explorer page
+ */
+app.get('/benchmarks', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/benchmarks.html'));
 });
 
 /**
