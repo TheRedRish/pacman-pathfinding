@@ -199,7 +199,7 @@
     ],
     "timestamp": "2025-11-24T13:15:59.649Z",
     "pacmanRandomness": 0.2,
-    "note": "BFS Test",
+    "note": "BFS  - Custom 51x51 labyrinth",
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
   },
   {
@@ -218,7 +218,7 @@
     ],
     "timestamp": "2025-11-24T13:29:03.567Z",
     "pacmanRandomness": 0.2,
-    "note": "DFS Test",
+    "note": "DFS  - Custom 51x51 labyrinth",
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
   },
   {
@@ -237,7 +237,7 @@
     ],
     "timestamp": "2025-11-24T13:36:07.920Z",
     "pacmanRandomness": 0.2,
-    "note": "Dijkstra Test",
+    "note": "Dijkstra  - Custom 51x51 labyrinth",
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
   },
   {
@@ -256,7 +256,7 @@
     ],
     "timestamp": "2025-11-24T13:41:26.839Z",
     "pacmanRandomness": 0.2,
-    "note": "A* Test",
+    "note": "A*  - Custom 51x51 labyrinth",
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
   },
   {
@@ -275,7 +275,7 @@
     ],
     "timestamp": "2025-11-24T14:32:12.676Z",
     "pacmanRandomness": 0.2,
-    "note": "Dijkstra Test - No weight",
+    "note": "Dijkstra  - Custom 51x51 labyrinth - No weight",
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
   },
   {
@@ -294,7 +294,7 @@
     ],
     "timestamp": "2025-11-24T14:37:23.545Z",
     "pacmanRandomness": 0.2,
-    "note": "A* Test - No weight",
+    "note": "A*  - Custom 51x51 labyrinth - No weight",
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
   },
   {
@@ -372,5 +372,404 @@
     "pacmanRandomness": 0.2,
     "note": "A* Test - Classic",
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765910216875",
+    "mapName": "custom-builder-1765910139382",
+    "results": [
+      {
+        "algorithm": "BFS",
+        "avgTimeMs": 0.01242787386648294,
+        "avgNodesVisited": 18.638703950288505,
+        "avgTicksToCatch": 13.966,
+        "catchRate": 1,
+        "trials": 1000,
+        "mapName": "custom-builder-1765910139382"
+      }
+    ],
+    "timestamp": "2025-12-16T18:36:56.873Z",
+    "pacmanRandomness": 0.2,
+    "note": "BFS - Custom 11x11 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765910229961",
+    "mapName": "custom-builder-1765910139382",
+    "results": [
+      {
+        "algorithm": "DFS",
+        "avgTimeMs": 0.015937709066509452,
+        "avgNodesVisited": 37.81191070016424,
+        "avgTicksToCatch": 25.897,
+        "catchRate": 1,
+        "trials": 1000,
+        "mapName": "custom-builder-1765910139382"
+      }
+    ],
+    "timestamp": "2025-12-16T18:37:09.959Z",
+    "pacmanRandomness": 0.2,
+    "note": "DFS - Custom 11x11 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765910246155",
+    "mapName": "custom-builder-1765910139382",
+    "results": [
+      {
+        "algorithm": "Dijkstra",
+        "avgTimeMs": 0.02128421613766916,
+        "avgNodesVisited": 21.55282680992581,
+        "avgTicksToCatch": 13.365,
+        "catchRate": 1,
+        "trials": 1000,
+        "mapName": "custom-builder-1765910139382"
+      }
+    ],
+    "timestamp": "2025-12-16T18:37:26.153Z",
+    "pacmanRandomness": 0.2,
+    "note": "Dijkstra - Custom 11x11 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765910395530",
+    "mapName": "custom-1765910185250",
+    "results": [
+      {
+        "algorithm": "A*",
+        "avgTimeMs": 0.009427374454294948,
+        "avgNodesVisited": 6.775605214152701,
+        "avgTicksToCatch": 13.768,
+        "catchRate": 1,
+        "trials": 1000,
+        "mapName": "custom-1765910185250"
+      }
+    ],
+    "timestamp": "2025-12-16T18:39:55.528Z",
+    "pacmanRandomness": 0.2,
+    "note": "A* - Custom 11x11 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765910875569",
+    "mapName": "custom-1765910330469",
+    "results": [
+      {
+        "algorithm": "BFS",
+        "avgTimeMs": 0.6966096605920761,
+        "avgNodesVisited": 950.7741318537859,
+        "avgTicksToCatch": 164.198,
+        "catchRate": 0.998,
+        "trials": 1000,
+        "mapName": "custom-1765910330469"
+      }
+    ],
+    "timestamp": "2025-12-16T18:47:55.568Z",
+    "pacmanRandomness": 0.2,
+    "note": "BFS - Custom 101x101 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765911352657",
+    "mapName": "custom-1765910330469",
+    "results": [
+      {
+        "algorithm": "Dijkstra",
+        "avgTimeMs": 1.2545249036836086,
+        "avgNodesVisited": 1052.3270478988013,
+        "avgTicksToCatch": 158.747,
+        "catchRate": 0.998,
+        "trials": 1000,
+        "mapName": "custom-1765910330469"
+      }
+    ],
+    "timestamp": "2025-12-16T18:55:52.655Z",
+    "pacmanRandomness": 0.2,
+    "note": "Dijkstra - Custom 101x101 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765911749791",
+    "mapName": "custom-1765910330469",
+    "results": [
+      {
+        "algorithm": "A*",
+        "avgTimeMs": 0.21215274356031819,
+        "avgNodesVisited": 158.08410719544517,
+        "avgTicksToCatch": 163.805,
+        "catchRate": 1,
+        "trials": 1000,
+        "mapName": "custom-1765910330469"
+      }
+    ],
+    "timestamp": "2025-12-16T19:02:29.789Z",
+    "pacmanRandomness": 0.2,
+    "note": "A* - Custom 101x101 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765914313244",
+    "mapName": "custom-1765910330469",
+    "results": [
+      {
+        "algorithm": "DFS",
+        "avgTimeMs": 4.120163530651643,
+        "avgNodesVisited": 2656.0740000365536,
+        "avgTicksToCatch": 448.082,
+        "catchRate": 0.366,
+        "trials": 1000,
+        "mapName": "custom-1765910330469"
+      }
+    ],
+    "timestamp": "2025-12-16T19:45:13.240Z",
+    "pacmanRandomness": 0.2,
+    "note": "DFS - Custom 101x101 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765921454295",
+    "mapName": "custom-builder-1765921192895",
+    "results": [
+      {
+        "algorithm": "BFS",
+        "avgTimeMs": 0.3162087661298055,
+        "avgNodesVisited": 471.057894977308,
+        "avgTicksToCatch": 142.324,
+        "catchRate": 1,
+        "trials": 1000,
+        "mapName": "custom-builder-1765921192895"
+      }
+    ],
+    "timestamp": "2025-12-16T21:44:14.293Z",
+    "pacmanRandomness": 0.2,
+    "note": "BFS - Custom 81x81 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765921735908",
+    "mapName": "custom-builder-1765921192895",
+    "results": [
+      {
+        "algorithm": "Dijkstra",
+        "avgTimeMs": 0.6528742726686851,
+        "avgNodesVisited": 600.1928087631369,
+        "avgTicksToCatch": 132.509,
+        "catchRate": 1,
+        "trials": 1000,
+        "mapName": "custom-builder-1765921192895"
+      }
+    ],
+    "timestamp": "2025-12-16T21:48:55.906Z",
+    "pacmanRandomness": 0.2,
+    "note": "Dijkstra - Custom 81x81 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765922051752",
+    "mapName": "custom-builder-1765921192895",
+    "results": [
+      {
+        "algorithm": "A*",
+        "avgTimeMs": 0.13779534307058794,
+        "avgNodesVisited": 113.1300259194996,
+        "avgTicksToCatch": 151.049,
+        "catchRate": 1,
+        "trials": 1000,
+        "mapName": "custom-builder-1765921192895"
+      }
+    ],
+    "timestamp": "2025-12-16T21:54:11.750Z",
+    "pacmanRandomness": 0.2,
+    "note": "A* - Custom 81x81 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765922215700",
+    "mapName": "custom-builder-1765921192895",
+    "results": [
+      {
+        "algorithm": "DFS",
+        "avgTimeMs": 2.209397233118535,
+        "avgNodesVisited": 2109.2004446640317,
+        "avgTicksToCatch": 415.24,
+        "catchRate": 0.44,
+        "trials": 50,
+        "mapName": "custom-builder-1765921192895"
+      }
+    ],
+    "timestamp": "2025-12-16T21:56:55.698Z",
+    "pacmanRandomness": 0.2,
+    "note": "DFS - Custom 81x81 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765961482381",
+    "mapName": "custom-builder-1765961391196",
+    "results": [
+      {
+        "algorithm": "BFS",
+        "avgTimeMs": 0.8847136827388968,
+        "avgNodesVisited": 1252.0713682941532,
+        "avgTicksToCatch": 176.9,
+        "catchRate": 1,
+        "trials": 50,
+        "mapName": "custom-builder-1765961391196"
+      }
+    ],
+    "timestamp": "2025-12-17T08:51:22.378Z",
+    "pacmanRandomness": 0.2,
+    "note": "BFS - Custom 121x121 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765961530764",
+    "mapName": "custom-builder-1765961391196",
+    "results": [
+      {
+        "algorithm": "Dijkstra",
+        "avgTimeMs": 2.1242906576209415,
+        "avgNodesVisited": 1570.4620069204152,
+        "avgTicksToCatch": 155.5,
+        "catchRate": 1,
+        "trials": 50,
+        "mapName": "custom-builder-1765961391196"
+      }
+    ],
+    "timestamp": "2025-12-17T08:52:10.762Z",
+    "pacmanRandomness": 0.2,
+    "note": "Dijkstra - Custom 121x121 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765961562249",
+    "mapName": "custom-builder-1765961391196",
+    "results": [
+      {
+        "algorithm": "A*",
+        "avgTimeMs": 0.178928092036575,
+        "avgNodesVisited": 133.2480771578562,
+        "avgTicksToCatch": 174.82,
+        "catchRate": 1,
+        "trials": 50,
+        "mapName": "custom-builder-1765961391196"
+      }
+    ],
+    "timestamp": "2025-12-17T08:52:42.247Z",
+    "pacmanRandomness": 0.2,
+    "note": "A* - Custom 121x121 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765961691810",
+    "mapName": "custom-builder-1765961391196",
+    "results": [
+      {
+        "algorithm": "A*",
+        "avgTimeMs": 0.28479035799439784,
+        "avgNodesVisited": 223.4395688338143,
+        "avgTicksToCatch": 246.64,
+        "catchRate": 1,
+        "trials": 50,
+        "mapName": "custom-builder-1765961391196"
+      }
+    ],
+    "timestamp": "2025-12-17T08:54:51.809Z",
+    "pacmanRandomness": 0.2,
+    "note": "A* - Custom 141x141 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765961732724",
+    "mapName": "custom-builder-1765961391196",
+    "results": [
+      {
+        "algorithm": "Dijkstra",
+        "avgTimeMs": 1.953699891130067,
+        "avgNodesVisited": 1586.1782729805013,
+        "avgTicksToCatch": 176.14,
+        "catchRate": 1,
+        "trials": 50,
+        "mapName": "custom-builder-1765961391196"
+      }
+    ],
+    "timestamp": "2025-12-17T08:55:32.723Z",
+    "pacmanRandomness": 0.2,
+    "note": "Dijkstra - Custom 141x141 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765961787498",
+    "mapName": "custom-builder-1765961391196",
+    "results": [
+      {
+        "algorithm": "BFS",
+        "avgTimeMs": 0.8658817635628886,
+        "avgNodesVisited": 1228.6860721442886,
+        "avgTicksToCatch": 210.58,
+        "catchRate": 0.98,
+        "trials": 50,
+        "mapName": "custom-builder-1765961391196"
+      }
+    ],
+    "timestamp": "2025-12-17T08:56:27.495Z",
+    "pacmanRandomness": 0.2,
+    "note": "BFS - Custom 141x141 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765961945173",
+    "mapName": "custom-builder-1765961391196",
+    "results": [
+      {
+        "algorithm": "BFS",
+        "avgTimeMs": 2.1575717410523625,
+        "avgNodesVisited": 2725.6123003512494,
+        "avgTicksToCatch": 312.74,
+        "catchRate": 0.96,
+        "trials": 50,
+        "mapName": "custom-builder-1765961391196"
+      }
+    ],
+    "timestamp": "2025-12-17T08:59:05.171Z",
+    "pacmanRandomness": 0.2,
+    "note": "BFS - Custom 201x201 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765962172108",
+    "mapName": "custom-builder-1765961391196",
+    "results": [
+      {
+        "algorithm": "Dijkstra",
+        "avgTimeMs": 3.978040919125481,
+        "avgNodesVisited": 2864.437289798206,
+        "avgTicksToCatch": 296.4,
+        "catchRate": 0.96,
+        "trials": 50,
+        "mapName": "custom-builder-1765961391196"
+      }
+    ],
+    "timestamp": "2025-12-17T09:02:52.106Z",
+    "pacmanRandomness": 0.2,
+    "note": "Dijkstra - Custom 201x201 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1765962222673",
+    "mapName": "custom-builder-1765961391196",
+    "results": [
+      {
+        "algorithm": "A*",
+        "avgTimeMs": 0.42966596299071613,
+        "avgNodesVisited": 290.8426673289457,
+        "avgTicksToCatch": 333.06,
+        "catchRate": 0.94,
+        "trials": 50,
+        "mapName": "custom-builder-1765961391196"
+      }
+    ],
+    "timestamp": "2025-12-17T09:03:42.672Z",
+    "pacmanRandomness": 0.2,
+    "note": "A* - Custom 201x201 labyrinth",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
   }
 ]

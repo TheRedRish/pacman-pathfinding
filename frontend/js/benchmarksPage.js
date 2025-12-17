@@ -10,6 +10,8 @@ const comparisonIntro = document.getElementById("comparisonIntro");
 const comparisonContainer = document.getElementById("comparisonContainer");
 const selectedBenchmarksEl = document.getElementById("selectedBenchmarks");
 
+const BAR_COLORS = ["#60a5fa", "#a78bfa", "#34d399", "#fbbf24", "#f472b6", "#22d3ee", "#f97316"];
+
 let benchmarks = [];
 const selectedIds = new Set();
 
@@ -28,6 +30,10 @@ function formatAlgorithms(results = []) {
 
 function getSelectedBenchmarks() {
     return benchmarks.filter((b) => selectedIds.has(b.id));
+}
+
+function getBarColor(index) {
+    return BAR_COLORS[index % BAR_COLORS.length];
 }
 
 function renderMapOptions(extraMaps = []) {
@@ -113,7 +119,7 @@ function renderSelection() {
         card.className = "comparison-card";
         card.innerHTML = `
             <div class="benchmark-note">${benchmark.note || "No note"}</div>
-            <div class="about-text">${formatMapName(benchmark.mapName)} • ${Math.round((benchmark.pacmanRandomness ?? 0) * 100)}% randomness</div>
+            <div class="about-text">${formatMapName(benchmark.mapName)} -> ${Math.round((benchmark.pacmanRandomness ?? 0) * 100)}% randomness</div>
             <div class="about-text">${formatTimestamp(benchmark.timestamp)}</div>
             <div class="about-text">Algorithms: ${formatAlgorithms(benchmark.results)}</div>
         `;
@@ -136,8 +142,9 @@ function renderComparison(selected) {
     summarySection.className = "comparison-section";
     summarySection.innerHTML = `
         <h4>Algorithm comparison</h4>
-        <p class="about-text">Side-by-side metrics for each algorithm from every selected run.</p>
+        <p class="about-text">Visualize planning time changes between algorithms across your selected runs.</p>
     `;
+    summarySection.appendChild(renderAlgorithmBarChart(selected));
     summarySection.appendChild(renderAlgorithmSummary(selected));
 
     const detailSection = document.createElement("section");
@@ -153,6 +160,113 @@ function renderComparison(selected) {
 
     comparisonContainer.innerHTML = "";
     comparisonContainer.appendChild(comparisonWrap);
+}
+
+function renderAlgorithmBarChart(selected) {
+    const benchmarkLabels = selected.map((bench) => benchmarkLabel(bench));
+    const algorithmData = new Map();
+
+    selected.forEach((bench, benchIndex) => {
+        (bench.results || []).forEach((result) => {
+            if (!algorithmData.has(result.algorithm)) {
+                algorithmData.set(result.algorithm, Array(selected.length).fill(null));
+            }
+            algorithmData.get(result.algorithm)[benchIndex] = result;
+        });
+    });
+
+    if (!algorithmData.size) {
+        const empty = document.createElement("div");
+        empty.className = "about-text";
+        empty.textContent = "No algorithm results available to plot.";
+        return empty;
+    }
+
+    const maxTime = Math.max(
+        0,
+        ...Array.from(algorithmData.values()).flatMap((entries) =>
+            entries.filter(Boolean).map((entry) => entry.avgTimeMs || 0)
+        )
+    );
+
+    const fastestByBenchmark = selected.map(() => Infinity);
+    algorithmData.forEach((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry && entry.avgTimeMs < fastestByBenchmark[index]) {
+                fastestByBenchmark[index] = entry.avgTimeMs;
+            }
+        });
+    });
+
+    const chart = document.createElement("div");
+    chart.className = "algo-chart";
+
+    const legend = document.createElement("div");
+    legend.className = "chart-legend";
+    benchmarkLabels.forEach((label, index) => {
+        const legendItem = document.createElement("div");
+        legendItem.className = "legend-item";
+        legendItem.innerHTML = `
+            <span class="legend-swatch" style="background:${getBarColor(index)}"></span>
+            <span>${label}</span>
+        `;
+        legend.appendChild(legendItem);
+    });
+    chart.appendChild(legend);
+
+    const rows = document.createElement("div");
+    rows.className = "chart-rows";
+
+    Array.from(algorithmData.entries())
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .forEach(([algorithm, entries]) => {
+            const row = document.createElement("div");
+            row.className = "chart-row";
+
+            const label = document.createElement("div");
+            label.className = "chart-row-label";
+            label.textContent = algorithm;
+            row.appendChild(label);
+
+            const bars = document.createElement("div");
+            bars.className = "chart-bars";
+
+            entries.forEach((entry, benchIndex) => {
+                const value = entry?.avgTimeMs ?? 0;
+                const width = maxTime > 0 && value > 0 ? Math.max((value / maxTime) * 100, 6) : 0;
+
+                const bar = document.createElement("div");
+                bar.className = "chart-bar";
+                bar.title = entry
+                    ? `${benchmarkLabels[benchIndex]} - ${value.toFixed(3)} ms`
+                    : `${benchmarkLabels[benchIndex]} - Not run`;
+
+                const fill = document.createElement("div");
+                fill.className = "chart-bar-fill";
+                fill.style.width = `${width}%`;
+                fill.style.backgroundColor = entry ? getBarColor(benchIndex) : "transparent";
+
+                const delta = entry && fastestByBenchmark[benchIndex] !== Infinity
+                    ? entry.avgTimeMs - fastestByBenchmark[benchIndex]
+                    : null;
+
+                const barLabel = document.createElement("div");
+                barLabel.className = "chart-bar-label";
+                barLabel.textContent = entry
+                    ? `${value.toFixed(3)} ms${delta && delta > 0.005 ? ` (+${delta.toFixed(3)} ms)` : " (fastest)"}`
+                    : "Not run";
+
+                bar.appendChild(fill);
+                bar.appendChild(barLabel);
+                bars.appendChild(bar);
+            });
+
+            row.appendChild(bars);
+            rows.appendChild(row);
+        });
+
+    chart.appendChild(rows);
+    return chart;
 }
 
 function renderAlgorithmSummary(selected) {
@@ -220,7 +334,7 @@ function renderBenchmarkDetailTable(selected) {
         header.innerHTML = `
             <div>
                 <div class="benchmark-note">${benchmarkLabel(benchmark)}</div>
-                <div class="about-text">${formatMapName(benchmark.mapName)} • ${Math.round((benchmark.pacmanRandomness ?? 0) * 100)}% randomness</div>
+                <div class="about-text">${formatMapName(benchmark.mapName)} -> ${Math.round((benchmark.pacmanRandomness ?? 0) * 100)}% randomness</div>
                 <div class="about-text">${formatTimestamp(benchmark.timestamp)}</div>
             </div>
         `;
