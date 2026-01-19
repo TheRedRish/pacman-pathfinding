@@ -222,48 +222,48 @@ function astar(start, goal, maze, ghosts) {
     frontier.add(posKey(start));
 
     while (pq.length > 0) {
-        pq.sort((a, b) => a.f - b.f);
-        const { pos } = pq.shift();
-        const key = posKey(pos);
+      pq.sort((a, b) => a.f - b.f);
+      const { pos } = pq.shift();
+      const key = posKey(pos);
 
-        frontier.delete(key);
+      frontier.delete(key);
 
-        if (visited.has(key)) continue;
-        visited.add(key);
+      if (visited.has(key)) continue;
+      visited.add(key);
 
-        if (pos.x === goal.x && pos.y === goal.y) {
-            const path = [];
-            let curr = pos;
-            while (curr) {
-                path.unshift(curr);
-                curr = prev.get(posKey(curr));
-            }
-
-            return {
-                nextMove: path.length > 1 ? path[1] : null,
-                visited: setToPositions(visited),
-                frontier: setToPositions(frontier),
-                path,
-                nodesVisited: visited.size,
-                timeMs: performance.now() - startTime
-            };
+      if (pos.x === goal.x && pos.y === goal.y) {
+        const path = [];
+        let curr = pos;
+        while (curr) {
+          path.unshift(curr);
+          curr = prev.get(posKey(curr));
         }
 
-        const g = gScore.get(key);
+        return {
+          nextMove: path.length > 1 ? path[1] : null,
+          visited: setToPositions(visited),
+          frontier: setToPositions(frontier),
+          path,
+          nodesVisited: visited.size,
+          timeMs: performance.now() - startTime,
+        };
+      }
 
-        for (const neighbor of getNeighbors(pos, maze, ghosts)) {
-            const nKey = posKey(neighbor);
-            const tentativeG = g + getStepCost(neighbor, maze);
+      const g = gScore.get(key);
 
-            if (!gScore.has(nKey) || tentativeG < gScore.get(nKey)) {
-                gScore.set(nKey, tentativeG);
-                const h = manhattan(neighbor, goal);
-                fScore.set(nKey, tentativeG + h);
-                prev.set(nKey, pos);
-                pq.push({ pos: neighbor, f: fScore.get(nKey) });
-                frontier.add(nKey);
-            }
+      for (const neighbor of getNeighbors(pos, maze, ghosts)) {
+        const nKey = posKey(neighbor);
+        const tentativeG = g + getStepCost(neighbor, maze);
+
+        if (!gScore.has(nKey) || tentativeG < gScore.get(nKey)) {
+          gScore.set(nKey, tentativeG);
+          const h = manhattan(neighbor, goal);
+          fScore.set(nKey, tentativeG + h);
+          prev.set(nKey, pos);
+          pq.push({ pos: neighbor, f: fScore.get(nKey) });
+          frontier.add(nKey);
         }
+      }
     }
 
     return {

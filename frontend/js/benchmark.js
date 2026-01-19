@@ -128,7 +128,7 @@ export async function runBenchmark(
     mapName,
     {
         trials = 10,
-        maxTicks = 500,
+        maxTicks = 2000,
         pacmanRandomness = 0.2,
         ghostCount,
         ghostStartDelay = 10,

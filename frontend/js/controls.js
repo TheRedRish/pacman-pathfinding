@@ -172,6 +172,7 @@ export class UIController {
 
             btn.addEventListener("click", () => {
                 this.gameEngine.loadMap(key);
+                this.syncCustomMapBuilder(key);
                 this.buildGhostControls();
                 this.updateStatsPlaceholder();
                 this.updatePlayButton(false);
@@ -194,6 +195,36 @@ export class UIController {
             }
         });
 
+    }
+
+    syncCustomMapBuilder(mapKey) {
+        if (!mapKey?.startsWith("custom-")) return;
+
+        const map = MAPS[mapKey];
+        if (!map?.data?.length) return;
+
+        const width = map.width ?? map.data[0]?.length ?? 0;
+        const height = map.height ?? map.data.length ?? 0;
+
+        this.lastCustomLayout = this.cloneMapData(map.data);
+        this.lastCustomDimensions = { width, height };
+        this.lastCustomMapKey = mapKey;
+        this.lastCustomMapId = mapKey.slice("custom-".length);
+
+        if (this.customMapNameInput) this.customMapNameInput.value = map.name || "";
+        if (this.customMapWidthInput) this.customMapWidthInput.value = width || "";
+        if (this.customMapHeightInput) this.customMapHeightInput.value = height || "";
+
+        const pacman = map.pacman || { x: 1, y: 1 };
+        if (this.customPacmanXInput) this.customPacmanXInput.value = pacman.x ?? 1;
+        if (this.customPacmanYInput) this.customPacmanYInput.value = pacman.y ?? 1;
+
+        const ghosts = Array.isArray(map.ghosts) ? map.ghosts : [];
+        this.customGhostInputs.forEach((inputs, index) => {
+            const ghost = ghosts[index];
+            if (inputs?.x) inputs.x.value = ghost?.x ?? 1;
+            if (inputs?.y) inputs.y.value = ghost?.y ?? 1;
+        });
     }
 
     handleGenerateCustomMap() {
@@ -618,7 +649,7 @@ export class UIController {
         try {
             const options = {
                 trials,
-                maxTicks: 500,
+                maxTicks: 2000,
                 pacmanRandomness: this.gameEngine.getPacmanRandomness(),
                 ghostCount: this.gameEngine.getGhostCount(),
                 ghostStartDelay: this.gameEngine.getGhostStartDelay(),
@@ -678,7 +709,7 @@ export class UIController {
         this.benchmarkReject = null;
     }
 
-    runBenchmarkViaWorker(mapName, options = { trials: 10, maxTicks: 500 }) {
+    runBenchmarkViaWorker(mapName, options = { trials: 10, maxTicks: 2000 }) {
         this.ensureBenchmarkWorker();
 
         const mapDefinition = MAPS[mapName];

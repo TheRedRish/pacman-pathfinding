@@ -14,7 +14,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Data storage paths
 const DATA_DIR = path.join(__dirname, 'data');
-const BENCHMARKS_FILE = path.join(DATA_DIR, 'benchmarks.json');
+const BENCHMARKS_FILE = path.join(DATA_DIR, "benchmarks_exam.json");
 const MAPS_FILE = path.join(DATA_DIR, 'maps.json');
 
 // Initialize data directory
