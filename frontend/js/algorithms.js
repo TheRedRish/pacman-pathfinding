@@ -16,8 +16,7 @@ const setToPositions = (set) => Array.from(set).map(parseKey);
 function getStepCost(pos, maze) {
   const cell = maze[pos.y]?.[pos.x];
 
-  if (cell === 2) return 0.9; // Regular pellet
-  if (cell === 3) return 0.8; // Power pellet
+  if (cell === 2 || cell === 3) return 0.9; // Pellet
 
   return 1; // Empty path
 }
@@ -217,7 +216,7 @@ function astar(start, goal, maze, ghosts) {
   const pq = [];
 
   gScore.set(posKey(start), 0);
-  fScore.set(posKey(start), manhattan(start, goal) * 0.8);
+  fScore.set(posKey(start), manhattan(start, goal) * 0.9);
   pq.push({ pos: start, f: fScore.get(posKey(start)) });
   frontier.add(posKey(start));
 
@@ -253,11 +252,11 @@ function astar(start, goal, maze, ghosts) {
 
     for (const neighbor of getNeighbors(pos, maze, ghosts)) {
       const nKey = posKey(neighbor);
-      const tentativeG = g + getStepCost(neighbor, maze) * 0.8;
+      const tentativeG = g + getStepCost(neighbor, maze);
 
       if (!gScore.has(nKey) || tentativeG < gScore.get(nKey)) {
         gScore.set(nKey, tentativeG);
-        const h = manhattan(neighbor, goal);
+        const h = manhattan(neighbor, goal) * 0.9;
         fScore.set(nKey, tentativeG + h);
         prev.set(nKey, pos);
         pq.push({ pos: neighbor, f: fScore.get(nKey) });
