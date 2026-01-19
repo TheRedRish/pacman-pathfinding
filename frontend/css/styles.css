@@ -478,6 +478,43 @@ select {
     margin-bottom: 15px;
 }
 
+.map-select {
+    margin-bottom: 15px;
+}
+
+.collapsible {
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 12px;
+    background: #14142a;
+}
+
+.collapsible summary {
+    cursor: pointer;
+    color: #ffff00;
+    font-weight: 600;
+    list-style: none;
+}
+
+.collapsible summary::-webkit-details-marker {
+    display: none;
+}
+
+.collapsible summary::before {
+    content: ">";
+    display: inline-block;
+    margin-right: 8px;
+    transition: transform 0.2s ease;
+}
+
+.collapsible[open] summary {
+    margin-bottom: 12px;
+}
+
+.collapsible[open] summary::before {
+    transform: rotate(90deg);
+}
+
 .map-button {
     width: 100%;
     padding: 8px;

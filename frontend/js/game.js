@@ -300,8 +300,21 @@ export class GameEngine {
 
     changeGhostAlgorithm(ghostId, algorithm) {
         const ghost = this.ghosts.find((g) => g.id === ghostId);
-        if (ghost) {
-            ghost.algorithm = algorithm;
+        if (!ghost) return;
+
+        ghost.algorithm = algorithm;
+
+        if (this.visualizingGhostId === ghostId) {
+            const plan = runAlgorithm(
+                ghost.algorithm,
+                { x: ghost.x, y: ghost.y },
+                this.pacman,
+                this.maze,
+                this.ghosts
+            );
+            this.lastPlan = plan;
+            this.onPlanComputed(ghost, plan);
+            this.render();
         }
     }
 

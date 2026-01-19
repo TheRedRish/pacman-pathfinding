@@ -6,7 +6,7 @@ export class UIController {
     constructor(gameEngine) {
         this.gameEngine = gameEngine;
 
-        this.mapSelector = document.getElementById("mapSelector");
+        this.mapSelector = document.getElementById("mapSelect");
         this.ghostControlsContainer = document.getElementById("ghostControls");
         this.statsDiv = document.getElementById("stats");
 
@@ -83,6 +83,18 @@ export class UIController {
     }
 
     bindEvents() {
+        this.mapSelector?.addEventListener("change", (e) => {
+            const mapKey = e.target.value;
+            if (!mapKey) return;
+
+            this.gameEngine.loadMap(mapKey);
+            this.syncCustomMapBuilder(mapKey);
+            this.buildGhostControls();
+            this.updateStatsPlaceholder();
+            this.updatePlayButton(false);
+            this.syncGhostCountFromEngine();
+        });
+
         this.btnPlay.addEventListener("click", () => {
             this.gameEngine.togglePlay();
             this.updatePlayButton(this.gameEngine.isPlaying());
@@ -158,43 +170,23 @@ export class UIController {
     }
 
     buildMapButtons() {
+        if (!this.mapSelector) return;
         this.mapSelector.innerHTML = "";
 
+        const currentMap = this.gameEngine.getCurrentMapName();
+
         Object.entries(MAPS).forEach(([key, map]) => {
-            const btn = document.createElement("button");
-            btn.className = "map-button";
-            btn.textContent = map.name;
-            btn.dataset.mapName = key;
-
-            if (key === this.gameEngine.getCurrentMapName()) {
-                btn.classList.add("active");
-            }
-
-            btn.addEventListener("click", () => {
-                this.gameEngine.loadMap(key);
-                this.syncCustomMapBuilder(key);
-                this.buildGhostControls();
-                this.updateStatsPlaceholder();
-                this.updatePlayButton(false);
-                this.syncGhostCountFromEngine();
-                this.setActiveMapButton(key);
-            });
-
-            this.mapSelector.appendChild(btn);
+            const option = document.createElement("option");
+            option.value = key;
+            option.textContent = map.name;
+            if (key === currentMap) option.selected = true;
+            this.mapSelector.appendChild(option);
         });
-
     }
 
     setActiveMapButton(mapName) {
-        const buttons = this.mapSelector.querySelectorAll(".map-button");
-        buttons.forEach((btn) => {
-            if (btn.dataset.mapName === mapName) {
-                btn.classList.add("active");
-            } else {
-                btn.classList.remove("active");
-            }
-        });
-
+        if (!this.mapSelector) return;
+        this.mapSelector.value = mapName ?? "";
     }
 
     syncCustomMapBuilder(mapKey) {
